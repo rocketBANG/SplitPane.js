@@ -1,110 +1,109 @@
-var dividerWidth = 10;
 
-function DividerVertical(dividerEl, leftEl, rightEl)
+class Divider
 {
-    var dividerEl = dividerEl;
-    var leftEl = leftEl;
-    var rightEl = rightEl;
-    var moving = false;
-    var workingWidth = 0;
-
-
-    this.layout = function()
+    constructor(dividerEl, beforeEl, afterEl)
     {
-        $(dividerEl).css("position", "absolute");
-        $(dividerEl).height($(rightEl).outerHeight());
-        $(dividerEl).outerWidth(dividerWidth);
-        $(dividerEl).css("background-color", "red");
-        $(dividerEl).css("left", $(rightEl).position().left - parseInt($(rightEl).css("padding-left")));
-        $(dividerEl).css("top", $(rightEl).position().top);
+        this._dividerWidth = 10;
+        this._workingWidth = 0;
+        this._moving = false;
+
+        this.dividerEl = dividerEl;
+        this.beforeEl = beforeEl;
+        this.afterEl = afterEl;
+
+        
+        $(this.dividerEl).on("mousedown", this.mouseDown.bind(this));
+        $(document).on("mousemove", this.documentMouseMove.bind(this));
+        this.layout();
     }
 
-    this.layout();
-
-    $(dividerEl).on("mousedown", function(e)
+    mouseDown(e)
     {
-        moving = true;
-        $(document).on("mouseup", stopMove);
-        workingWidth = ($(leftEl).outerWidth() + $(rightEl).outerWidth()) / $(leftEl).parent().outerWidth();
+        this._moving = true;
 
-        console.log("start move");
+        this.measureWidth();
+
+        $(document).on("mouseup", this.stopMove.bind(this));
 
         e.preventDefault();
-    });
+    }
 
-    $(document).on("mousemove", function(e)
+    documentMouseMove(e)
     {
-        if(moving)
+        if(this._moving)
         {
-            $(dividerEl).css("left", (e.clientX - dividerWidth) / $(document).width() * 100 + "%");
-            $(leftEl).outerWidth((e.clientX - $(leftEl).position().left) / $(leftEl).parent().innerWidth() * 100 + "%");
-            $(rightEl).outerWidth(workingWidth * 100 - (e.clientX - $(leftEl).position().left) / $(leftEl).parent().innerWidth() * 100 + "%");
-            console.log("moving");
-            layoutDividers();
+            this.dragDivider(e);
         }
-    });
+    }
 
-    function stopMove()
+    draw(left, top, height, width)
     {
-        moving = false;
-        $(document).off("mouseup", stopMove);
-        console.log("stop move");
+        console.log(this._dividerWidth);
+    }
+
+    stopMove()
+    {
+        this._moving = false;
+        $(document).off("mouseup", this.stopMove.bind(this));
     }
 }
 
-function DividerHorizontal(dividerEl, topEls, bottomEls)
+class DividerVertical extends Divider
 {
-    var dividerEl = dividerEl;
-    var topEl = topEls;
-    var bottomEl = bottomEls;
-    var moving = false;
-    var workingWidth = 0;
-    $(dividerEl).css("position", "absolute");
+    layout()
+    {
+        $(this.dividerEl).css("position", "absolute");
+        $(this.dividerEl).css("cursor", "e-resize");
+        $(this.dividerEl).height($(this.afterEl).outerHeight());
+        $(this.dividerEl).outerWidth(this._dividerWidth);
+        $(this.dividerEl).css("background-color", "red");
+        $(this.dividerEl).css("left", $(this.afterEl).position().left - parseInt($(this.afterEl).css("padding-left")));
+        $(this.dividerEl).css("top", $(this.afterEl).position().top);
+    }
 
+    measureWidth()
+    {
+        this._workingWidth = ($(this.beforeEl).outerWidth() + $(this.afterEl).outerWidth()) / $(this.beforeEl).parent().outerWidth();
+    }
 
-    this.layout = function()
+    dragDivider(e)
+    {
+        $(this.dividerEl).css("left", (e.clientX - this._dividerWidth) / $(document).width() * 100 + "%");
+        $(this.beforeEl).outerWidth((e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
+        $(this.afterEl).outerWidth(this._workingWidth * 100 - (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
+        layoutDividers();
+    }
+}
+
+class DividerHorizontal extends Divider
+{
+    layout()
     {
         var totalWidth = 0;
 
-        topEl.forEach(function(element)
+        this.beforeEl.forEach(function(element)
         {
             totalWidth += $(element).outerWidth();
         });
 
-        $(dividerEl).outerWidth(totalWidth);
-        $(dividerEl).outerHeight(dividerWidth);
-        $(dividerEl).css("background-color", "red");
-        $(dividerEl).css("top", $(bottomEl[0]).position().top);
+        $(this.dividerEl).css("position", "absolute");
+        $(this.dividerEl).css("cursor", "n-resize");
+        $(this.dividerEl).outerWidth(totalWidth);
+        $(this.dividerEl).outerHeight(this._dividerWidth);
+        $(this.dividerEl).css("background-color", "red");
+        $(this.dividerEl).css("top", $(this.afterEl[0]).position().top);
     }
-    
-    this.layout();
 
-    $(dividerEl).on("mousedown", function(e)
+    measureWidth()
     {
-        moving = true;
-        $(document).on("mouseup", stopMove);
-        workingWidth = ($(topEl).outerHeight() + $(bottomEl[0]).outerHeight()) / $(topEl).parent().outerHeight();
-        console.log("start move");
-        e.preventDefault();
-    });
+        this._workingWidth = ($(this.beforeEl).outerHeight() + $(this.afterEl[0]).outerHeight()) / $(this.beforeEl).parent().outerHeight();
+    }
 
-    $(document).on("mousemove", function(e)
+    dragDivider(e)
     {
-        if(moving)
-        {
-            console.log($(bottomEl[0]).width());
-            // console.log($(topEl)).position().top;
-            $(dividerEl).css("top", (e.clientY - dividerWidth) / $(document).height() * 100 + "%");
-            $(topEl).outerHeight((e.clientY - $(topEl).position().top) / $(topEl).parent().innerHeight() * 100 + "%");
-            $(bottomEl).outerHeight(workingWidth * 100 - (e.clientY - $(topEl).position().top) / $(topEl).parent().innerHeight() * 100 + "%");
-            layoutDividers();
-        }
-    });
-
-    function stopMove()
-    {
-        moving = false;
-        $(document).off("mouseup", stopMove);
-        console.log("stop move");
+        $(this.dividerEl).css("top", (e.clientY - this._dividerWidth) / $(document).height() * 100 + "%");
+        $(this.beforeEl).outerHeight((e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().innerHeight() * 100 + "%");
+        $(this.afterEl).outerHeight(this._workingWidth * 100 - (e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().innerHeight() * 100 + "%");
+        layoutDividers();
     }
 }
