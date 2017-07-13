@@ -1,10 +1,8 @@
-
 class Divider
 {
-    constructor(dividerEl, beforeEl, afterEl)
+    constructor(dividerEl, beforeEl, afterEl, width = 10)
     {
-        this._dividerWidth = 10;
-        this._workingWidth = 0;
+        this._dividerWidth = width;
         this._moving = false;
 
         this.dividerEl = dividerEl;
@@ -21,6 +19,8 @@ class Divider
     {
         this._moving = true;
 
+        this.measureDimensions();
+
         $(document).on("mouseup", this.stopMove.bind(this));
 
         e.preventDefault();
@@ -34,11 +34,6 @@ class Divider
         }
     }
 
-    draw(left, top, height, width)
-    {
-        console.log(this._dividerWidth);
-    }
-
     stopMove()
     {
         this._moving = false;
@@ -50,20 +45,41 @@ class DividerVertical extends Divider
 {
     layout()
     {
-        $(this.dividerEl).css("cursor", "e-resize");
+        $(this.dividerEl).css("cursor", "ew-resize");
         $(this.dividerEl).css("float", "left");
         $(this.dividerEl).height("100%");
         $(this.dividerEl).outerWidth(this._dividerWidth);
         $(this.dividerEl).css("background-color", "red");
     }
 
+    measureDimensions()
+    {
+        this._maxWidth = $(this.beforeEl).outerWidth() + $(this.afterEl).outerWidth();
+    }
+
     dragDivider(e)
     {
-        var widthPrev = $(this.beforeEl).outerWidth();
-        $(this.beforeEl).outerWidth("calc(" + (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().width() * 100 + "% - 10px)");
-        var widthDif = $(this.beforeEl).outerWidth() - widthPrev;        
-        // $(this.afterEl).outerWidth(this._workingWidth * 100 - (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
-        $(this.afterEl).outerWidth("calc(" + ($(this.afterEl).outerWidth() - widthDif + 10) / $(this.afterEl).parent().width() * 100 + "% - 10px)");        
+        var sizePrevBefore = this.beforeEl.style.width;
+        var sizePrevAfter = this.afterEl.style.width;
+
+        var beforeElSize = (e.clientX - $(this.beforeEl).offset().left) / $(this.beforeEl).parent().width() * 100;
+
+        if(beforeElSize < this.beforeEl.column.min)
+        {
+            return;
+        }
+        
+        $(this.beforeEl).outerWidth("calc(" + beforeElSize + "% - " + this._dividerWidth + "px)");
+        $(this.afterEl).outerWidth("0px");
+
+        var afterElSize = (this._maxWidth - $(this.beforeEl).outerWidth() + this._dividerWidth) / $(this.afterEl).parent().width() * 100;
+        $(this.afterEl).outerWidth("calc(" + afterElSize + "% - " + this._dividerWidth + "px)");        
+   
+        if(afterElSize < this.afterEl.column.min)
+        {
+            $(this.beforeEl).css("width", sizePrevBefore);
+            $(this.afterEl).css("width", sizePrevAfter);
+        }
     }
 }
 
@@ -71,26 +87,41 @@ class DividerHorizontal extends Divider
 {
     layout()
     {
-        var totalWidth = 0;
-
-        this.beforeEl.forEach(function(element)
-        {
-            totalWidth += $(element).outerWidth();
-        });
-
-        $(this.dividerEl).css("cursor", "n-resize");
+        $(this.dividerEl).css("cursor", "ns-resize");
         $(this.dividerEl).css("float", "left");
         $(this.dividerEl).width("100%");
         $(this.dividerEl).outerHeight(this._dividerWidth);
         $(this.dividerEl).css("background-color", "red");
     }
 
+    measureDimensions()
+    {
+        this._maxHeight = $(this.beforeEl).outerHeight() + $(this.afterEl).outerHeight();
+    }
+
     dragDivider(e)
     {
-        var heightPrev = $(this.beforeEl).outerHeight();        
-        $(this.beforeEl).outerHeight("calc(" + (e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().height() * 100 + "% - 10px)");
-        var heightDif = $(this.beforeEl).outerHeight() - heightPrev;        
-        $(this.afterEl).outerHeight("calc(" + ($(this.afterEl).outerHeight() - heightDif + 10) / $(this.afterEl).parent().height() * 100 + "% - 10px");
+        var sizePrevBefore = this.beforeEl.style.height;
+        var sizePrevAfter = this.afterEl.style.height;
+
+        var beforeElSize = (e.clientY - $(this.beforeEl).offset().top) / $(this.beforeEl).parent().height() * 100;
+
+        if(beforeElSize < this.beforeEl.column.min)
+        {
+            return;
+        }
+        
+        $(this.beforeEl).outerHeight("calc(" + beforeElSize + "% - " + this._dividerWidth + "px)");
+        $(this.afterEl).outerHeight("0px");
+
+        var afterElSize = (this._maxHeight - $(this.beforeEl).outerHeight() + this._dividerWidth) / $(this.afterEl).parent().height() * 100;
+        $(this.afterEl).outerHeight("calc(" + afterElSize + "% - " + this._dividerWidth + "px)");        
+   
+        if(afterElSize < this.afterEl.column.min)
+        {
+            $(this.beforeEl).css("height", sizePrevBefore);
+            $(this.afterEl).css("height", sizePrevAfter);
+        }
         
     }
 }

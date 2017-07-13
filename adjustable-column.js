@@ -1,4 +1,5 @@
-
+var _dividerWidth = 10;
+var  count = 0;
 function addChildren(el)
 {
     el.added = true;
@@ -53,23 +54,24 @@ function layoutSquare(square)
                 {
                     var divider = document.createElement("div");
                     divider.classList.add("column-divider");
-                    divider.object = new DividerHorizontal(divider, verticalGroups[gIndex - 1], group);
-    
+                    divider.id = count + ""; count++;
+                    divider.object = new DividerHorizontal(divider, verticalGroups[gIndex - 1][0], group[0], _dividerWidth);
+                    
                     $(singleColumn).before(divider);
                 }
-
             }
-
-            $(singleColumn).outerHeight((100 / verticalGroups.length) + "%");
+            singleColumn.column = new Column(20, singleColumn);
+            $(singleColumn).height("calc(" + (100 / verticalGroups.length) + "% - " + _dividerWidth + "px)");
             $(singleColumn).css("float", "left");
-            $(singleColumn).width("calc(" + (100 / group.length) + "% - 10px)");
+            $(singleColumn).width("calc(" + (100 / group.length) + "% - " + _dividerWidth + "px)");
             
             if(cIndex > 0)
             {
                 var divider = document.createElement("div");
                 divider.classList.add("column-divider");
-                divider.object = new DividerVertical(divider, group[cIndex - 1], singleColumn);
-
+                divider.id = count + ""; count++;   
+                divider.object = new DividerVertical(divider, group[cIndex - 1], singleColumn, _dividerWidth);
+                
                 $(singleColumn).before(divider);
             }
         });
