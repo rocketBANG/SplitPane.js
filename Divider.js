@@ -21,8 +21,6 @@ class Divider
     {
         this._moving = true;
 
-        this.measureWidth();
-
         $(document).on("mouseup", this.stopMove.bind(this));
 
         e.preventDefault();
@@ -52,35 +50,20 @@ class DividerVertical extends Divider
 {
     layout()
     {
-        $(this.dividerEl).css("position", "absolute");
         $(this.dividerEl).css("cursor", "e-resize");
-        $(this.dividerEl).height($(this.afterEl).outerHeight());
+        $(this.dividerEl).css("float", "left");
+        $(this.dividerEl).height("100%");
         $(this.dividerEl).outerWidth(this._dividerWidth);
         $(this.dividerEl).css("background-color", "red");
-        $(this.dividerEl).css("left", $(this.afterEl).position().left - parseInt($(this.afterEl).css("padding-left")));
-        $(this.dividerEl).css("top", $(this.afterEl).position().top);
-    }
-
-    measureWidth()
-    {
-        this._workingWidth = ($(this.beforeEl).outerWidth() + $(this.afterEl).outerWidth()) / $(this.beforeEl).parent().outerWidth();
     }
 
     dragDivider(e)
     {
-        $(this.dividerEl).css("left", (e.clientX - this._dividerWidth) / $(document).width() * 100 + "%");
-        $(this.beforeEl).outerWidth((e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
-        $(this.afterEl).outerWidth(this._workingWidth * 100 - (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
-        
-        //Layout neighboring dividers
-        $(".column-divider", this.beforeEl).each(function(index, columnDivider)
-        {
-            columnDivider.object.layout();
-        });
-        $(".column-divider", this.afterEl).each(function(index, columnDivider)
-        {
-            columnDivider.object.layout();
-        });
+        var widthPrev = $(this.beforeEl).outerWidth();
+        $(this.beforeEl).outerWidth("calc(" + (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().width() * 100 + "% - 10px)");
+        var widthDif = $(this.beforeEl).outerWidth() - widthPrev;        
+        // $(this.afterEl).outerWidth(this._workingWidth * 100 - (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
+        $(this.afterEl).outerWidth("calc(" + ($(this.afterEl).outerWidth() - widthDif + 10) / $(this.afterEl).parent().width() * 100 + "% - 10px)");        
     }
 }
 
@@ -95,49 +78,19 @@ class DividerHorizontal extends Divider
             totalWidth += $(element).outerWidth();
         });
 
-        $(this.dividerEl).css("position", "absolute");
         $(this.dividerEl).css("cursor", "n-resize");
-        $(this.dividerEl).outerWidth(totalWidth);
+        $(this.dividerEl).css("float", "left");
+        $(this.dividerEl).width("100%");
         $(this.dividerEl).outerHeight(this._dividerWidth);
         $(this.dividerEl).css("background-color", "red");
-        $(this.dividerEl).css("top", $(this.afterEl[0]).position().top);
-    }
-
-    measureWidth()
-    {
-        this._workingWidth = ($(this.beforeEl).outerHeight() + $(this.afterEl[0]).outerHeight()) / $(this.beforeEl).parent().outerHeight();
     }
 
     dragDivider(e)
     {
-        $(this.dividerEl).css("top", (e.clientY - this._dividerWidth) / $(document).height() * 100 + "%");
-        $(this.beforeEl).outerHeight((e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().innerHeight() * 100 + "%");
-        $(this.afterEl).outerHeight(this._workingWidth * 100 - (e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().innerHeight() * 100 + "%");
+        var heightPrev = $(this.beforeEl).outerHeight();        
+        $(this.beforeEl).outerHeight("calc(" + (e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().height() * 100 + "% - 10px)");
+        var heightDif = $(this.beforeEl).outerHeight() - heightPrev;        
+        $(this.afterEl).outerHeight("calc(" + ($(this.afterEl).outerHeight() - heightDif + 10) / $(this.afterEl).parent().height() * 100 + "% - 10px");
         
-        //Layout neighboring dividers
-        this.beforeEl.forEach(function(before)
-        {
-            $(before).siblings(".column-divider").each(function(index, columnDivider)
-            {
-                columnDivider.object.layout();
-            });
-
-            $(".column-divider", before).each(function(index, columnDivider)
-            {
-                columnDivider.object.layout();
-            });
-        });
-        this.afterEl.forEach(function(after)
-        {
-            $(after).siblings(".column-divider").each(function(index, columnDivider)
-            {
-                columnDivider.object.layout();
-            });
-
-            $(".column-divider", after).each(function(index, columnDivider)
-            {
-                columnDivider.object.layout();
-            });
-        });
     }
 }

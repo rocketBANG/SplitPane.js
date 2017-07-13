@@ -1,6 +1,4 @@
 
-var dividers = [];
-
 function addChildren(el)
 {
     el.added = true;
@@ -50,40 +48,33 @@ function layoutSquare(square)
             if(cIndex == 0)
             {
                 $(singleColumn).css("clear", "left");
+                
+                if(gIndex != 0)
+                {
+                    var divider = document.createElement("div");
+                    divider.classList.add("column-divider");
+                    divider.object = new DividerHorizontal(divider, verticalGroups[gIndex - 1], group);
+    
+                    $(singleColumn).before(divider);
+                }
+
             }
 
             $(singleColumn).outerHeight((100 / verticalGroups.length) + "%");
             $(singleColumn).css("float", "left");
-            $(singleColumn).outerWidth((100 / group.length) + "%");
+            $(singleColumn).width("calc(" + (100 / group.length) + "% - 10px)");
             
             if(cIndex > 0)
             {
                 var divider = document.createElement("div");
                 divider.classList.add("column-divider");
                 divider.object = new DividerVertical(divider, group[cIndex - 1], singleColumn);
-                dividers.push(divider.object);
-                $(singleColumn).after(divider);
-            }
 
-            if(gIndex > 0 && cIndex == group.length - 1)
-            {
-                var divider = document.createElement("div");
-                divider.classList.add("column-divider");
-                divider.object = new DividerHorizontal(divider, verticalGroups[gIndex - 1], group);
-                dividers.push(divider.object);
-                $(singleColumn).after(divider);
+                $(singleColumn).before(divider);
             }
         });
     });
 
-}
-
-function layoutDividers()
-{
-    dividers.forEach(function(divider)
-    {
-        divider.layout();
-    });
 }
 
 function layoutChildren(children)
