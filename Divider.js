@@ -71,7 +71,16 @@ class DividerVertical extends Divider
         $(this.dividerEl).css("left", (e.clientX - this._dividerWidth) / $(document).width() * 100 + "%");
         $(this.beforeEl).outerWidth((e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
         $(this.afterEl).outerWidth(this._workingWidth * 100 - (e.clientX - $(this.beforeEl).position().left) / $(this.beforeEl).parent().innerWidth() * 100 + "%");
-        layoutDividers();
+        
+        //Layout neighboring dividers
+        $(".column-divider", this.beforeEl).each(function(index, columnDivider)
+        {
+            columnDivider.object.layout();
+        });
+        $(".column-divider", this.afterEl).each(function(index, columnDivider)
+        {
+            columnDivider.object.layout();
+        });
     }
 }
 
@@ -104,6 +113,31 @@ class DividerHorizontal extends Divider
         $(this.dividerEl).css("top", (e.clientY - this._dividerWidth) / $(document).height() * 100 + "%");
         $(this.beforeEl).outerHeight((e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().innerHeight() * 100 + "%");
         $(this.afterEl).outerHeight(this._workingWidth * 100 - (e.clientY - $(this.beforeEl).position().top) / $(this.beforeEl).parent().innerHeight() * 100 + "%");
-        layoutDividers();
+        
+        //Layout neighboring dividers
+        this.beforeEl.forEach(function(before)
+        {
+            $(before).siblings(".column-divider").each(function(index, columnDivider)
+            {
+                columnDivider.object.layout();
+            });
+
+            $(".column-divider", before).each(function(index, columnDivider)
+            {
+                columnDivider.object.layout();
+            });
+        });
+        this.afterEl.forEach(function(after)
+        {
+            $(after).siblings(".column-divider").each(function(index, columnDivider)
+            {
+                columnDivider.object.layout();
+            });
+
+            $(".column-divider", after).each(function(index, columnDivider)
+            {
+                columnDivider.object.layout();
+            });
+        });
     }
 }

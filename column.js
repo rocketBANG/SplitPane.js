@@ -59,6 +59,7 @@ function layoutSquare(square)
             if(cIndex > 0)
             {
                 var divider = document.createElement("div");
+                divider.classList.add("column-divider");
                 divider.object = new DividerVertical(divider, group[cIndex - 1], singleColumn);
                 dividers.push(divider.object);
                 $(singleColumn).after(divider);
@@ -67,6 +68,7 @@ function layoutSquare(square)
             if(gIndex > 0 && cIndex == group.length - 1)
             {
                 var divider = document.createElement("div");
+                divider.classList.add("column-divider");
                 divider.object = new DividerHorizontal(divider, verticalGroups[gIndex - 1], group);
                 dividers.push(divider.object);
                 $(singleColumn).after(divider);
