@@ -1,5 +1,5 @@
 var _dividerWidth = 10;
-var  count = 0;
+
 function addChildren(el)
 {
     el.added = true;
@@ -17,64 +17,76 @@ function addChildren(el)
 
 function layoutSquare(square)
 {
-    var horizontalColumns = [];
     var verticalGroups = [];
+    var group = [];
 
     $(square).each(function(index, el)
     {
         if(el.classList.contains("column-vertical"))
         {
-            if(horizontalColumns.length > 0)
-            {
-                verticalGroups.push(horizontalColumns.splice(0));
-            }
-            verticalGroups.push([el]);
+            group.push(el);
         }
 
         if(el.classList.contains("column-horizontal"))
         {
-            horizontalColumns.push(el);
+            group.push(el);
         }
     });
 
-    if(horizontalColumns.length > 0)
-    {
-        verticalGroups.push(horizontalColumns.splice(0));
-    }
 
-    verticalGroups.forEach(function(group, gIndex)
+    var weightTotal = 0;
+
+    group.forEach(function(singleColumn, cIndex)
     {
-        group.forEach(function(singleColumn, cIndex)
+        if(singleColumn.columnWeight != undefined)
         {
-            if(cIndex == 0)
-            {
-                $(singleColumn).css("clear", "left");
-                
-                if(gIndex != 0)
-                {
-                    var divider = document.createElement("div");
-                    divider.classList.add("column-divider");
-                    divider.id = count + ""; count++;
-                    divider.object = new DividerHorizontal(divider, verticalGroups[gIndex - 1][0], group[0], _dividerWidth);
-                    
-                    $(singleColumn).before(divider);
-                }
-            }
-            singleColumn.column = new Column(20, singleColumn);
-            $(singleColumn).height("calc(" + (100 / verticalGroups.length) + "% - " + _dividerWidth + "px)");
-            $(singleColumn).css("float", "left");
-            $(singleColumn).width("calc(" + (100 / group.length) + "% - " + _dividerWidth + "px)");
+            weightTotal += parseInt(singleColumn.columnWeight);
+        }
+        else
+        {
+            weightTotal += 1;
+        }
+    });
+
+    group.forEach(function(singleColumn, cIndex)
+    {
+        singleColumn.column = new Column(singleColumn.columnMin, singleColumn);
+        
+        $(singleColumn).css("float", "left");
+
+        var columnWeight = singleColumn.columnWeight != undefined ? singleColumn.columnWeight: 1;
+        var widthPercent = 100 / weightTotal * columnWeight; 
+        var heightPercent = 100 / weightTotal * columnWeight; 
+        
+        if(singleColumn.classList.contains("column-vertical"))
+        {
+            $(singleColumn).css("clear", "left");
             
-            if(cIndex > 0)
-            {
-                var divider = document.createElement("div");
-                divider.classList.add("column-divider");
-                divider.id = count + ""; count++;   
-                divider.object = new DividerVertical(divider, group[cIndex - 1], singleColumn, _dividerWidth);
-                
-                $(singleColumn).before(divider);
-            }
-        });
+            var divider = document.createElement("div");
+            divider.classList.add("column-divider");
+
+            divider.object = new DividerHorizontal(divider, group[cIndex - 1], singleColumn, _dividerWidth);
+            
+            widthPercent = 100;
+        }
+
+        if(singleColumn.classList.contains("column-horizontal"))
+        {
+            var divider = document.createElement("div");
+            divider.classList.add("column-divider");
+
+            divider.object = new DividerVertical(divider, group[cIndex - 1], singleColumn, _dividerWidth);
+            
+            heightPercent = 100;
+        }
+
+        if(cIndex > 0)
+        {
+            $(singleColumn).before(divider);
+        }
+
+        $(singleColumn).height("calc(" + heightPercent + "% - " + _dividerWidth + "px)");
+        $(singleColumn).width("calc(" +  widthPercent + "% - " + _dividerWidth + "px)");
     });
 
 }
@@ -99,6 +111,28 @@ $(document).ready(function()
     var horizontal = 0;
     var vertical = 0;
     var rootColumns = [];
+
+    $("div[class^='column-weight-'],div[class*=' column-weight-']").each(function(index, el)
+    {
+        el.classList.forEach(function(classname)
+        {
+            if(classname.substr(0, 14) == "column-weight-")
+            {
+                el.columnWeight = classname.substr(14);
+            }
+        });
+    });
+
+    $("div[class^='column-min-'],div[class*=' column-min-']").each(function(index, el)
+    {
+        el.classList.forEach(function(classname)
+        {
+            if(classname.substr(0, 11) == "column-min-")
+            {
+                el.columnMin = classname.substr(11);
+            }
+        });
+    });
 
     $(".adjustable-column").each(function(index, el)
     {

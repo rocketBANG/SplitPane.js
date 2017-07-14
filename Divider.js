@@ -49,7 +49,7 @@ class DividerVertical extends Divider
         $(this.dividerEl).css("float", "left");
         $(this.dividerEl).height("100%");
         $(this.dividerEl).outerWidth(this._dividerWidth);
-        $(this.dividerEl).css("background-color", "red");
+        $(this.dividerEl).css("background-color", "#eee");
     }
 
     measureDimensions()
@@ -91,7 +91,7 @@ class DividerHorizontal extends Divider
         $(this.dividerEl).css("float", "left");
         $(this.dividerEl).width("100%");
         $(this.dividerEl).outerHeight(this._dividerWidth);
-        $(this.dividerEl).css("background-color", "red");
+        $(this.dividerEl).css("background-color", "#eee");
     }
 
     measureDimensions()
