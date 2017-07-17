@@ -1,4 +1,4 @@
-class Column
+class Pane
 {
     constructor(min = 5, el)
     {

@@ -1,38 +1,38 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script>
-<script src="adjustable-column.js" type="text/javascript"></script>
-<script src="Column.js" type="text/javascript"></script>
+<script src="splitpane.js" type="text/javascript"></script>
+<script src="Pane.js" type="text/javascript"></script>
 <script src="Divider.js" type="text/javascript"></script>
 
-<div class="adjustable-column column-vertical">
-    <div class="adjustable-column column-horizontal column-weight-3 column-min-50">
-        Column 1.1
+<div class="split-pane pane-vertical">
+    <div class="split-pane pane-horizontal pane-weight-3 pane-min-50">
+        Pane 1.1
     </div>
-    <div class="adjustable-column column-horizontal column-weight-2">
-        Column 1.2
+    <div class="split-pane pane-horizontal pane-weight-2">
+        Pane 1.2
     </div>
 </div>
-<div class="adjustable-column column-vertical column-weight-3">
-    <div class="adjustable-column column-horizontal">
-        <div class="adjustable-column column-vertical">
-            Column 2.1
+<div class="split-pane pane-vertical pane-weight-3">
+    <div class="split-pane pane-horizontal">
+        <div class="split-pane pane-vertical">
+            Pane 2.1
         </div>
-        <div class="adjustable-column column-vertical">
-            <div class="adjustable-column column-horizontal">
-                Column 2.1.1
+        <div class="split-pane pane-vertical">
+            <div class="split-pane pane-horizontal">
+                Pane 2.1.1
             </div>
-            <div class="adjustable-column column-horizontal">
-                Column 2.1.2
+            <div class="split-pane pane-horizontal">
+                Pane 2.1.2
             </div>
-            <div class="adjustable-column column-horizontal">
-                Column 2.1.3
+            <div class="split-pane pane-horizontal">
+                Pane 2.1.3
             </div>
         </div>
     </div >
-    <div class="adjustable-column column-horizontal orange">
-        Column 3
+    <div class="split-pane pane-horizontal">
+        Pane 3
     </div>
-    <div class="adjustable-column column-horizontal blue">
-        Column 4
+    <div class="split-pane pane-horizontal">
+        Pane 4
     </div>
 </div>
 <style>
@@ -42,7 +42,7 @@
         height: 100%;
         margin: 0;
     }
-    .adjustable-column
+    .split-pane
     {
         box-sizing: border-box;
         /* background: green; */

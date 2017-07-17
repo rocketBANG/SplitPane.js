@@ -64,7 +64,7 @@ class DividerVertical extends Divider
 
         var beforeElSize = (e.clientX - $(this.beforeEl).offset().left) / $(this.beforeEl).parent().width() * 100;
 
-        if(beforeElSize < this.beforeEl.column.min)
+        if(beforeElSize < this.beforeEl.pane.min)
         {
             return;
         }
@@ -75,7 +75,7 @@ class DividerVertical extends Divider
         var afterElSize = (this._maxWidth - $(this.beforeEl).outerWidth() + this._dividerWidth) / $(this.afterEl).parent().width() * 100;
         $(this.afterEl).outerWidth("calc(" + afterElSize + "% - " + this._dividerWidth + "px)");        
    
-        if(afterElSize < this.afterEl.column.min)
+        if(afterElSize < this.afterEl.pane.min)
         {
             $(this.beforeEl).css("width", sizePrevBefore);
             $(this.afterEl).css("width", sizePrevAfter);
@@ -106,7 +106,7 @@ class DividerHorizontal extends Divider
 
         var beforeElSize = (e.clientY - $(this.beforeEl).offset().top) / $(this.beforeEl).parent().height() * 100;
 
-        if(beforeElSize < this.beforeEl.column.min)
+        if(beforeElSize < this.beforeEl.pane.min)
         {
             return;
         }
@@ -117,7 +117,7 @@ class DividerHorizontal extends Divider
         var afterElSize = (this._maxHeight - $(this.beforeEl).outerHeight() + this._dividerWidth) / $(this.afterEl).parent().height() * 100;
         $(this.afterEl).outerHeight("calc(" + afterElSize + "% - " + this._dividerWidth + "px)");        
    
-        if(afterElSize < this.afterEl.column.min)
+        if(afterElSize < this.afterEl.pane.min)
         {
             $(this.beforeEl).css("height", sizePrevBefore);
             $(this.afterEl).css("height", sizePrevAfter);
