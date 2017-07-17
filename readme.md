@@ -2,6 +2,12 @@
 Easly create adjustable views for your web app  
 Can be fully controlled through your HTML code
 
+* [Getting started](#Getting-started)
+* [Optional settings](#Optional-settings)
+* [Demos](#Demos)
+* [Advanced Options](#Advanced-options)
+
+
 ## Getting started
 Add the split-pane class to your div  
 Then add the pane-[horizontal/vertical] to specify direction
@@ -24,6 +30,4 @@ Can add the options
 [Demo here](demo.html)
 
 ## Advanced options
-
-[I'm an inline-style link](#page1)
 
