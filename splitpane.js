@@ -1,5 +1,5 @@
 var _dividerWidth = 10;
-
+//TODO change to object
 function SplitPane(rootEl, dividerWidth)
 {
     if(dividerWidth != undefined)
@@ -124,7 +124,10 @@ function layoutSquare(square)
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
 
-            divider.object = new DividerHorizontal(divider, group[cIndex - 1], singlePane, _dividerWidth);
+            if(cIndex > 0)
+            {
+                divider.divder = new DividerHorizontal(divider, group[cIndex - 1], singlePane, _dividerWidth);
+            }
             
             widthPercent = 100;
         }
@@ -134,7 +137,10 @@ function layoutSquare(square)
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
 
-            divider.object = new DividerVertical(divider, group[cIndex - 1], singlePane, _dividerWidth);
+            if(cIndex > 0)
+            {
+                divider.divder = new DividerVertical(divider, group[cIndex - 1], singlePane, _dividerWidth);
+            }                
             
             heightPercent = 100;
         }
@@ -144,8 +150,20 @@ function layoutSquare(square)
             $(singlePane).before(divider);
         }
 
-        $(singlePane).height("calc(" + heightPercent + "% - " + _dividerWidth + "px)");
-        $(singlePane).width("calc(" +  widthPercent + "% - " + _dividerWidth + "px)");
+        $(singlePane).height(heightPercent + "%");
+        $(singlePane).width(widthPercent + "%");
+    });
+
+    group.forEach(function(singlePane, cIndex)
+    {
+        if(singlePane.classList.contains("pane-horizontal"))
+        {
+            singlePane.pane.setWidth();
+        }
+        if(singlePane.classList.contains("pane-vertical"))
+        {
+            singlePane.pane.setHeight();
+        }
     });
 
 }

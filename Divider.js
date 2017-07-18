@@ -2,12 +2,21 @@ class Divider
 {
     constructor(dividerEl, beforeEl, afterEl, width = 10)
     {
-        this._dividerWidth = width;
+        this.dividerWidth = width;
         this._moving = false;
 
         this.dividerEl = dividerEl;
         this.beforeEl = beforeEl;
         this.afterEl = afterEl;
+
+        if(this.beforeEl != undefined)
+        {
+            this.beforeEl.pane.dividerAfter = this;
+        }
+        if(this.afterEl != undefined)
+        {
+            this.afterEl.pane.dividerBefore = this;
+        }
 
         
         $(this.dividerEl).on("mousedown", this.mouseDown.bind(this));
@@ -48,13 +57,12 @@ class DividerVertical extends Divider
         $(this.dividerEl).css("cursor", "ew-resize");
         $(this.dividerEl).css("float", "left");
         $(this.dividerEl).height("100%");
-        $(this.dividerEl).outerWidth(this._dividerWidth);
-        $(this.dividerEl).css("background-color", "#eee");
+        $(this.dividerEl).outerWidth(this.dividerWidth);
     }
 
     measureDimensions()
     {
-        this._maxWidth = $(this.beforeEl).outerWidth() + $(this.afterEl).outerWidth();
+        this._maxWidth = $(this.beforeEl).width() + $(this.afterEl).width();
     }
 
     dragDivider(e)
@@ -62,20 +70,18 @@ class DividerVertical extends Divider
         var sizePrevBefore = this.beforeEl.style.width;
         var sizePrevAfter = this.afterEl.style.width;
 
-        var beforeElSize = (e.clientX - $(this.beforeEl).offset().left) / $(this.beforeEl).parent().width() * 100;
+        var beforeElSize = e.clientX - $(this.beforeEl).offset().left;
 
-        if(beforeElSize < this.beforeEl.pane.min)
+        if(!this.beforeEl.pane.setWidth(beforeElSize))
         {
             return;
         }
         
-        $(this.beforeEl).outerWidth("calc(" + beforeElSize + "% - " + this._dividerWidth + "px)");
-        $(this.afterEl).outerWidth("0px");
+        $(this.afterEl).width("0px");
 
-        var afterElSize = (this._maxWidth - $(this.beforeEl).outerWidth() + this._dividerWidth) / $(this.afterEl).parent().width() * 100;
-        $(this.afterEl).outerWidth("calc(" + afterElSize + "% - " + this._dividerWidth + "px)");        
-   
-        if(afterElSize < this.afterEl.pane.min)
+        var afterElSize = this._maxWidth - $(this.beforeEl).width();
+
+        if(!this.afterEl.pane.setWidth(afterElSize))
         {
             $(this.beforeEl).css("width", sizePrevBefore);
             $(this.afterEl).css("width", sizePrevAfter);
@@ -90,13 +96,12 @@ class DividerHorizontal extends Divider
         $(this.dividerEl).css("cursor", "ns-resize");
         $(this.dividerEl).css("float", "left");
         $(this.dividerEl).width("100%");
-        $(this.dividerEl).outerHeight(this._dividerWidth);
-        $(this.dividerEl).css("background-color", "#eee");
+        $(this.dividerEl).outerHeight(this.dividerWidth);
     }
 
     measureDimensions()
     {
-        this._maxHeight = $(this.beforeEl).outerHeight() + $(this.afterEl).outerHeight();
+        this._maxHeight = $(this.beforeEl).height() + $(this.afterEl).height();
     }
 
     dragDivider(e)
@@ -104,20 +109,17 @@ class DividerHorizontal extends Divider
         var sizePrevBefore = this.beforeEl.style.height;
         var sizePrevAfter = this.afterEl.style.height;
 
-        var beforeElSize = (e.clientY - $(this.beforeEl).offset().top) / $(this.beforeEl).parent().height() * 100;
+        var beforeElSize = e.clientY - $(this.beforeEl).offset().top;
 
-        if(beforeElSize < this.beforeEl.pane.min)
+        if(!this.beforeEl.pane.setHeight(beforeElSize))
         {
             return;
         }
         
-        $(this.beforeEl).outerHeight("calc(" + beforeElSize + "% - " + this._dividerWidth + "px)");
         $(this.afterEl).outerHeight("0px");
-
-        var afterElSize = (this._maxHeight - $(this.beforeEl).outerHeight() + this._dividerWidth) / $(this.afterEl).parent().height() * 100;
-        $(this.afterEl).outerHeight("calc(" + afterElSize + "% - " + this._dividerWidth + "px)");        
+        var afterElSize = this._maxHeight - $(this.beforeEl).outerHeight();
    
-        if(afterElSize < this.afterEl.pane.min)
+        if(!this.afterEl.pane.setHeight(afterElSize))
         {
             $(this.beforeEl).css("height", sizePrevBefore);
             $(this.afterEl).css("height", sizePrevAfter);
