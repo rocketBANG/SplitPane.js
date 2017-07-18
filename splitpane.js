@@ -1,5 +1,64 @@
 var _dividerWidth = 10;
 
+function SplitPane(rootEl, dividerWidth)
+{
+    if(dividerWidth != undefined)
+    {
+        _dividerWidth = dividerWidth;
+    }
+
+    if(rootEl == undefined)
+    {
+        rootEl = $("body");
+    }
+
+    var horizontal = 0;
+    var vertical = 0;
+    var rootPanes = [];
+
+    $(rootEl).find("div[class^='pane-weight-'],div[class*=' pane-weight-']").each(function(index, el)
+    {
+        el.classList.forEach(function(classname)
+        {
+            if(classname.substr(0, 12) == "pane-weight-")
+            {
+                el.paneWeight = classname.substr(12);
+            }
+        });
+    });
+
+    $(rootEl).find("div[class^='pane-min-'],div[class*=' pane-min-']").each(function(index, el)
+    {
+        el.classList.forEach(function(classname)
+        {
+            if(classname.substr(0, 9) == "pane-min-")
+            {
+                el.paneMin = classname.substr(9);
+            }
+        });
+    });
+
+    $(rootEl).find(".split-pane").each(function(index, el)
+    {
+        if(el.classList.contains("pane-vertical"))
+        {
+            el.type = "vertical";
+        }
+        else if(el.classList.contains("pane-horizontal"))
+        {
+            el.type = "horizontal";
+        }
+
+        if(!el.added)
+        {
+            addChildren(el);
+            rootPanes.push(el);
+        }
+    });
+
+    layoutChildren(rootPanes);
+}
+
 function addChildren(el)
 {
     el.added = true;
@@ -105,53 +164,3 @@ function layoutChildren(children)
         layoutChildren(child.children);
     });
 }
-
-$(document).ready(function()
-{
-    var horizontal = 0;
-    var vertical = 0;
-    var rootPanes = [];
-
-    $("div[class^='pane-weight-'],div[class*=' pane-weight-']").each(function(index, el)
-    {
-        el.classList.forEach(function(classname)
-        {
-            if(classname.substr(0, 12) == "pane-weight-")
-            {
-                el.paneWeight = classname.substr(12);
-            }
-        });
-    });
-
-    $("div[class^='pane-min-'],div[class*=' pane-min-']").each(function(index, el)
-    {
-        el.classList.forEach(function(classname)
-        {
-            if(classname.substr(0, 9) == "pane-min-")
-            {
-                el.paneMin = classname.substr(9);
-            }
-        });
-    });
-
-    $(".split-pane").each(function(index, el)
-    {
-        if(el.classList.contains("pane-vertical"))
-        {
-            el.type = "vertical";
-        }
-        else if(el.classList.contains("pane-horizontal"))
-        {
-            el.type = "horizontal";
-        }
-
-        if(!el.added)
-        {
-            addChildren(el);
-            rootPanes.push(el);
-        }
-    });
-
-    layoutChildren(rootPanes);
-
-});

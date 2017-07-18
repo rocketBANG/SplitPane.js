@@ -1,0 +1,23 @@
+
+$start: 10%;
+$end: 90%;
+
+.pane-divider::before
+{
+    display: inline-block;
+    position: static;
+    width: 100%;
+    height: 100%;
+    background-color: #eee;
+    content: "";
+    // background-image:
+    // linear-gradient(
+    //   to right, 
+    //   #000,
+    //   #000 $start,
+    //   #fff $start,
+    //   #fff $end,
+    //   #000 $end
+    // );
+
+}
