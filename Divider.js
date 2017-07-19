@@ -71,21 +71,39 @@ class DividerVertical extends Divider
         var sizePrevAfter = this.afterEl.style.width;
 
         var beforeElSize = e.clientX - $(this.beforeEl).offset().left;
+        $(this.beforeEl).siblings().css("display", "none");
 
-        if(!this.beforeEl.pane.setWidth(beforeElSize))
-        {
-            return;
-        }
-        
-        $(this.afterEl).width("0px");
-
+        this.beforeEl.pane.setWidth(beforeElSize);
         var afterElSize = this._maxWidth - $(this.beforeEl).width();
 
-        if(!this.afterEl.pane.setWidth(afterElSize))
+        var success = this.afterEl.pane.setWidth(afterElSize);
+        $(this.beforeEl).siblings().css("display", "initial");
+
+        if(!success)
         {
-            $(this.beforeEl).css("width", sizePrevBefore);
-            $(this.afterEl).css("width", sizePrevAfter);
+            $(this.afterEl).siblings().css("display", "none");
+
+            beforeElSize = this._maxWidth - $(this.afterEl).width();
+            this.beforeEl.pane.setWidth(beforeElSize);
+
+            $(this.afterEl).siblings().css("display", "initial");
         }
+    }
+
+    resize(width, target, affected)
+    {
+        var prevWidth = $(affected).width();
+        affected.pane.setWidth(prevWidth + width);
+    }
+
+    resizeBefore(width)
+    {
+        this.resize(width, this.beforeEl, this.afterEl);
+    }
+
+    resizeAfter(width)
+    {
+        this.resize(width, this.afterEl, this.beforeEl);
     }
 }
 

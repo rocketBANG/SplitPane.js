@@ -1,12 +1,14 @@
 class Pane
 {
-    constructor(min = 5, el)
+    constructor(min = 5, el, weight = 1, minPx = 100)
     {
         this.min = min;
-        this.minPx = 100;
+        this.minPx = minPx;
         this.el = el;
         this.dividerBefore = undefined;
         this.dividerAfter = undefined;
+        this.weight = weight;
+        this.actualWidth = undefined;
     }
 
     //Works with plain numbers (assume pixels)
@@ -14,54 +16,75 @@ class Pane
     //With percent (40%)
     _getInPercent(measurement, parentMeasure)
     {
-        var sizePercent = undefined;
-
         if(typeof measurement == "number")
         {
             var sizePx = measurement;
-        }
-        else if(measurement.substring(measurement.length - 1) == "%")
-        {
-            sizePercent = parseFloat(measurement.substring(0, measurement.length - 1));
-        }
-        else if(measurement.substring(measurement.length - 2) == "px")
-        {
-            var sizePx = parseFloat(measurement.substring(0, measurement.length - 2));
-        }
-
-        if(sizePercent == undefined)
-        {
-            sizePercent = sizePx / parentMeasure * 100;
-        }
-
-        return sizePercent;
-    }
-
-    _getInPx(measurement, parentMeasure)
-    {
-        var sizePx = undefined;
-        
-        if(typeof measurement == "number")
-        {
-            sizePx = measurement;
+            return measurement / parentMeasure * 100;
         }
         else if(measurement.substring(measurement.length - 1) == "%")
         {
             var sizePercent = parseFloat(measurement.substring(0, measurement.length - 1));
+            return sizePercent;
         }
-        else if(measurement.substring(measurement.length - 2) == "px")
+        else
         {
-            sizePx = parseFloat(measurement.substring(0, measurement.length - 2));
+            var sizePx = parseFloat(measurement);
+            return measurement / parentMeasure * 100;
         }
-
-        if(sizePx == undefined)
-        {
-            sizePx = sizePercent * parentMeasure / 100;
-        }
-
-        return sizePx;
     }
 
+    _getInPx(measurement, parentMeasure)
+    {
+        if(typeof measurement == "number")
+        {
+            return measurement;
+        }
+        else if(measurement.substring(measurement.length - 1) == "%")
+        {
+            var sizePercent = parseFloat(measurement.substring(0, measurement.length - 1));
+            return sizePercent * parentMeasure / 100;
+        }
+        else
+        {
+            return parseFloat(measurement);
+        }
+    }
+
+    adjustWidth(width)
+    {
+        var dividerWidths = 0;
+        dividerWidths += this.dividerBefore != undefined ? this.dividerBefore.dividerWidth/2 : 0;
+        dividerWidths += this.dividerAfter != undefined ? this.dividerAfter.dividerWidth/2 : 0;
+
+        var widthPx = this._getInPx(width, $(this.el).parent().width());
+        widthPx += dividerWidths;
+
+        var widthDif = $(this.el).width() - widthPx;
+
+        if(this.dividerBefore != undefined && this.dividerAfter != undefined)
+        {
+            widthDif = widthDif / 2;
+        }
+
+        $(this.el).width("0px");
+
+        if(this.dividerBefore != undefined)
+        {
+            this.dividerBefore.resizeAfter(widthDif);
+        }
+        if(this.dividerAfter != undefined)
+        {
+            this.dividerAfter.resizeBefore(widthDif);
+        }
+
+        this.setWidth(width);
+    }
+
+    /**
+     * Sets the width of the pane
+     * @param {int} width The width
+     * @return {bool}
+     */
     setWidth(width)
     {
         var dividerWidths = 0;
@@ -71,22 +94,31 @@ class Pane
         if(width == undefined)
         {
             $(this.el).width("calc(" + this.el.style.width + " - " + dividerWidths + "px)");
-            return true;
+            return $(this.el).width();
         }
 
         var trueWidth = this._getInPx(width, $(this.el).parent().width());
-        trueWidth += dividerWidths;
+        // trueWidth += dividerWidths;
         var widthPercent = this._getInPercent(trueWidth, $(this.el).parent().width());
+        var success = true;
 
-        if(widthPercent > this.min)
+         if(widthPercent <= this.min && this._getInPx(this.min + "%", $(this.el).parent().width()) > this.minPx)
         {
-            $(this.el).outerWidth("calc(" + widthPercent + "% - " + dividerWidths + "px)");
-            return true;            
+            trueWidth = this._getInPx(this.min + "%", $(this.el).parent().width());
+            success = false;
         }
-        else
+        else  if(trueWidth <= this.minPx)
         {
-            return false;
+            trueWidth = this.minPx;
+            success =  false;
         }
+        
+        trueWidth += dividerWidths;
+        widthPercent = this._getInPercent(trueWidth, $(this.el).parent().width());
+
+        $(this.el).outerWidth("calc(" + widthPercent + "% - " + dividerWidths + "px)");
+
+        return success;
     }
 
     setHeight(height)
@@ -105,7 +137,7 @@ class Pane
         trueHeight += dividerWidths;
         var heightPercent = this._getInPercent(trueHeight, $(this.el).parent().height());
 
-        if(heightPercent > this.min)
+        if(heightPercent > this.min && trueHeight > this.minPx)
         {
             $(this.el).outerHeight("calc(" + heightPercent + "% - " + dividerWidths + "px)");
             return true;            

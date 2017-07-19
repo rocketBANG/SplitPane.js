@@ -1,11 +1,8 @@
-var _dividerWidth = 10;
+var _dividerWidth;
 //TODO change to object
-function SplitPane(rootEl, dividerWidth)
+function SplitPane(rootEl, dividerWidth = 10)
 {
-    if(dividerWidth != undefined)
-    {
-        _dividerWidth = dividerWidth;
-    }
+    _dividerWidth = dividerWidth;
 
     if(rootEl == undefined)
     {
@@ -16,29 +13,7 @@ function SplitPane(rootEl, dividerWidth)
     var vertical = 0;
     var rootPanes = [];
 
-    $(rootEl).find("div[class^='pane-weight-'],div[class*=' pane-weight-']").each(function(index, el)
-    {
-        el.classList.forEach(function(classname)
-        {
-            if(classname.substr(0, 12) == "pane-weight-")
-            {
-                el.paneWeight = classname.substr(12);
-            }
-        });
-    });
-
-    $(rootEl).find("div[class^='pane-min-'],div[class*=' pane-min-']").each(function(index, el)
-    {
-        el.classList.forEach(function(classname)
-        {
-            if(classname.substr(0, 9) == "pane-min-")
-            {
-                el.paneMin = classname.substr(9);
-            }
-        });
-    });
-
-    $(rootEl).find(".split-pane").each(function(index, el)
+    $(rootEl).children(".split-pane").each(function(index, el)
     {
         if(el.classList.contains("pane-vertical"))
         {
@@ -63,14 +38,44 @@ function addChildren(el)
 {
     el.added = true;
 
-    if(el.children == undefined)
+    if(el.childPanes == undefined)
     {
-        el.children = [];
+        el.childPanes = [];
     }
 
     $(el).children(".split-pane").each(function(index, childEl)
     {
+        el.childPanes.push(childEl);
         addChildren(childEl);
+    });
+}
+
+function layoutChildren(children)
+{
+    if(children == undefined || children.length < 1)
+    {
+        return;
+    }
+
+    layoutSquare(children);
+
+    $(children).each(function(index, child)
+    {
+        layoutChildren(child.children);
+    });
+}
+
+function getClassValue(element, findClass, callback)
+{
+    $(element).filter("div[class^='" + findClass + "'],div[class*=' " + findClass + "']").each(function(index, el)
+    {
+        el.classList.forEach(function(classname)
+        {
+            if(classname.substr(0, findClass.length) == findClass)
+            {
+                callback(classname.substr(findClass.length));
+            }
+        });
     });
 }
 
@@ -97,25 +102,34 @@ function layoutSquare(square)
 
     group.forEach(function(singlePane, cIndex)
     {
-        if(singlePane.paneWeight != undefined)
+        var paneWeight;
+        var paneMin;
+        var paneMinPx;
+
+        getClassValue(singlePane, "pane-weight-", function(value) { paneWeight = parseInt(value);});
+        getClassValue(singlePane, "pane-min-", function(value) { paneMin = parseInt(value);});
+        getClassValue(singlePane, "pane-minpx-", function(value) { paneMinPx = parseInt(value);});
+
+        if(paneWeight != undefined)
         {
-            weightTotal += parseInt(singlePane.paneWeight);
+            weightTotal += paneWeight;
         }
         else
         {
             weightTotal += 1;
         }
+
+        singlePane.pane = new Pane(paneMin, singlePane, paneWeight, paneMinPx);
     });
 
     group.forEach(function(singlePane, cIndex)
     {
-        singlePane.pane = new Pane(singlePane.paneMin, singlePane);
+        var pane = singlePane.pane;
         
         $(singlePane).css("float", "left");
 
-        var paneWeight = singlePane.paneWeight != undefined ? singlePane.paneWeight: 1;
-        var widthPercent = 100 / weightTotal * paneWeight; 
-        var heightPercent = 100 / weightTotal * paneWeight; 
+        var widthPercent = 100 / weightTotal * pane.weight; 
+        var heightPercent = 100 / weightTotal * pane.weight; 
         
         if(singlePane.classList.contains("pane-vertical"))
         {
@@ -168,17 +182,7 @@ function layoutSquare(square)
 
 }
 
-function layoutChildren(children)
+function createPane(element)
 {
-    if(children == undefined || children.length < 1)
-    {
-        return;
-    }
-
-    layoutSquare(children);
-
-    $(children).each(function(index, child)
-    {
-        layoutChildren(child.children);
-    });
+    
 }

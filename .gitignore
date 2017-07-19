@@ -1,2 +1,3 @@
 .sync
 *.yml
+.vscode/launch.json
