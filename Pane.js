@@ -52,12 +52,7 @@ class Pane
 
     adjustWidth(width)
     {
-        var dividerWidths = 0;
-        dividerWidths += this.dividerBefore != undefined ? this.dividerBefore.dividerWidth/2 : 0;
-        dividerWidths += this.dividerAfter != undefined ? this.dividerAfter.dividerWidth/2 : 0;
-
         var widthPx = this._getInPx(width, $(this.el).parent().width());
-        widthPx += dividerWidths;
 
         var widthDif = $(this.el).width() - widthPx;
 
@@ -66,7 +61,7 @@ class Pane
             widthDif = widthDif / 2;
         }
 
-        $(this.el).width("0px");
+        $(this.el).css("display", "none");
 
         if(this.dividerBefore != undefined)
         {
@@ -76,13 +71,20 @@ class Pane
         {
             this.dividerAfter.resizeBefore(widthDif);
         }
-
         this.setWidth(width);
+        $(this.el).css("display", "initial");
+    }
+
+    getMinWidth()
+    {
+        var smallestPercent = this._getInPx(this.min + "%", $(this.el).parent().width());
+        var smallestPx = smallestPercent > this.minPx ? smallestPercent : this.minPx;
+        return smallestPx;
     }
 
     /**
      * Sets the width of the pane
-     * @param {int} width The width
+     * @param {number} width - The width
      * @return {bool}
      */
     setWidth(width)
@@ -98,27 +100,10 @@ class Pane
         }
 
         var trueWidth = this._getInPx(width, $(this.el).parent().width());
-        // trueWidth += dividerWidths;
-        var widthPercent = this._getInPercent(trueWidth, $(this.el).parent().width());
-        var success = true;
-
-         if(widthPercent <= this.min && this._getInPx(this.min + "%", $(this.el).parent().width()) > this.minPx)
-        {
-            trueWidth = this._getInPx(this.min + "%", $(this.el).parent().width());
-            success = false;
-        }
-        else  if(trueWidth <= this.minPx)
-        {
-            trueWidth = this.minPx;
-            success =  false;
-        }
-        
         trueWidth += dividerWidths;
-        widthPercent = this._getInPercent(trueWidth, $(this.el).parent().width());
+        var widthPercent = this._getInPercent(trueWidth, $(this.el).parent().width());
 
         $(this.el).outerWidth("calc(" + widthPercent + "% - " + dividerWidths + "px)");
-
-        return success;
     }
 
     setHeight(height)

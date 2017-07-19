@@ -1,5 +1,16 @@
+/**
+ * Class in control of the divider inbetween panes
+ * Handles the resizing of panes before and after when divider is dragged
+ */
 class Divider
 {
+    /**
+     * Creates a new divider
+     * @param {number} dividerEl The DOM element of the divider
+     * @param {number} beforeEl The DOM element of the pane before
+     * @param {number} afterEl The DOM element of the pane after
+     * @param {number} width The that the divider should be
+     */
     constructor(dividerEl, beforeEl, afterEl, width = 10)
     {
         this.dividerWidth = width;
@@ -65,29 +76,37 @@ class DividerVertical extends Divider
         this._maxWidth = $(this.beforeEl).width() + $(this.afterEl).width();
     }
 
+    resizeWithProposals(beforePropose, afterPropose, calls)
+    {
+        if(calls > 1)
+        {
+            return;
+        }
+        if(beforePropose >= this.beforeEl.pane.getMinWidth() && afterPropose >= this.afterEl.pane.getMinWidth())
+        {
+            $(this.beforeEl).siblings().css("display", "none");
+            this.beforeEl.pane.setWidth(beforePropose);
+            this.afterEl.pane.setWidth(afterPropose);
+            $(this.beforeEl).siblings().css("display", "initial");
+        }
+        else if(beforePropose < this.beforeEl.pane.getMinWidth() && afterPropose >= this.afterEl.pane.getMinWidth())
+        {
+            this.resizeWithProposals(this.beforeEl.pane.getMinWidth(), this._maxWidth - this.beforeEl.pane.getMinWidth(), calls + 1);
+        }
+        else if(beforePropose >= this.beforeEl.pane.getMinWidth() && afterPropose < this.afterEl.pane.getMinWidth())
+        {
+            this.resizeWithProposals(this._maxWidth - this.afterEl.pane.getMinWidth(), this.afterEl.pane.getMinWidth(), calls + 1);
+        }
+    }
+
     dragDivider(e)
     {
         var sizePrevBefore = this.beforeEl.style.width;
         var sizePrevAfter = this.afterEl.style.width;
 
         var beforeElSize = e.clientX - $(this.beforeEl).offset().left;
-        $(this.beforeEl).siblings().css("display", "none");
 
-        this.beforeEl.pane.setWidth(beforeElSize);
-        var afterElSize = this._maxWidth - $(this.beforeEl).width();
-
-        var success = this.afterEl.pane.setWidth(afterElSize);
-        $(this.beforeEl).siblings().css("display", "initial");
-
-        if(!success)
-        {
-            $(this.afterEl).siblings().css("display", "none");
-
-            beforeElSize = this._maxWidth - $(this.afterEl).width();
-            this.beforeEl.pane.setWidth(beforeElSize);
-
-            $(this.afterEl).siblings().css("display", "initial");
-        }
+        this.resizeWithProposals(beforeElSize, this._maxWidth - beforeElSize, 0);
     }
 
     resize(width, target, affected)
