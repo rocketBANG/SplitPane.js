@@ -66,7 +66,7 @@ class DividerVertical extends Divider
     layout()
     {
         $(this.dividerEl).css("cursor", "ew-resize");
-        $(this.dividerEl).css("float", "left");
+        $(this.dividerEl).css("flex", "none");
         $(this.dividerEl).height("100%");
         $(this.dividerEl).outerWidth(this.dividerWidth);
     }
@@ -76,24 +76,26 @@ class DividerVertical extends Divider
         this._maxWidth = $(this.beforeEl).width() + $(this.afterEl).width();
     }
 
-    resizeWithProposals(beforePropose, afterPropose, calls)
+    resizeWithProposals(beforePropose, afterPropose, calls = 0)
     {
-        if(calls > 1)
+        if(calls > 2)
         {
             return;
         }
-        if(beforePropose >= this.beforeEl.pane.getMinWidth() && afterPropose >= this.afterEl.pane.getMinWidth())
+        var fitBefore = beforePropose >= this.beforeEl.pane.getMinWidth();
+        var fitAfter = afterPropose >= this.afterEl.pane.getMinWidth();
+        if(fitBefore && fitAfter)
         {
             $(this.beforeEl).siblings().css("display", "none");
             this.beforeEl.pane.setWidth(beforePropose);
             this.afterEl.pane.setWidth(afterPropose);
             $(this.beforeEl).siblings().css("display", "initial");
         }
-        else if(beforePropose < this.beforeEl.pane.getMinWidth() && afterPropose >= this.afterEl.pane.getMinWidth())
+        else if(!fitBefore && fitAfter)
         {
             this.resizeWithProposals(this.beforeEl.pane.getMinWidth(), this._maxWidth - this.beforeEl.pane.getMinWidth(), calls + 1);
         }
-        else if(beforePropose >= this.beforeEl.pane.getMinWidth() && afterPropose < this.afterEl.pane.getMinWidth())
+        else if(fitBefore && !fitAfter)
         {
             this.resizeWithProposals(this._maxWidth - this.afterEl.pane.getMinWidth(), this.afterEl.pane.getMinWidth(), calls + 1);
         }
@@ -106,13 +108,13 @@ class DividerVertical extends Divider
 
         var beforeElSize = e.clientX - $(this.beforeEl).offset().left;
 
-        this.resizeWithProposals(beforeElSize, this._maxWidth - beforeElSize, 0);
+        this.resizeWithProposals(beforeElSize, this._maxWidth - beforeElSize);
     }
 
     resize(width, target, affected)
     {
-        var prevWidth = $(affected).width();
-        affected.pane.setWidth(prevWidth + width);
+        var prevWidth = $(target).width();
+        target.pane.setWidth(width + prevWidth);
     }
 
     resizeBefore(width)
@@ -124,6 +126,16 @@ class DividerVertical extends Divider
     {
         this.resize(width, this.afterEl, this.beforeEl);
     }
+
+    avaliableBefore()
+    {
+        return $(this.beforeEl).width() - this.beforeEl.pane.getMinWidth();
+    }
+
+    avaliableAfter()
+    {
+        return $(this.afterEl).width() - this.afterEl.pane.getMinWidth();
+    }
 }
 
 class DividerHorizontal extends Divider
@@ -131,7 +143,7 @@ class DividerHorizontal extends Divider
     layout()
     {
         $(this.dividerEl).css("cursor", "ns-resize");
-        $(this.dividerEl).css("float", "left");
+        $(this.dividerEl).css("flex", "none");
         $(this.dividerEl).width("100%");
         $(this.dividerEl).outerHeight(this.dividerWidth);
     }

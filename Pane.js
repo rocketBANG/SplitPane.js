@@ -9,6 +9,21 @@ class Pane
         this.dividerAfter = undefined;
         this.weight = weight;
         this.actualWidth = undefined;
+        this.resizeTO = undefined;
+
+        $(window).resize(function() 
+        {
+            clearTimeout(this.resizeTO);
+            this.resizeTO = setTimeout(this.tryResize(), 500); //Timeouts so that it happens after the window resizing has 'settled down'
+        }.bind(this));
+    }
+
+    tryResize()
+    {
+        if($(this.el).width() < this.minPx)
+        {
+            this.adjustWidth(this.minPx);
+        }
     }
 
     //Works with plain numbers (assume pixels)
@@ -50,6 +65,38 @@ class Pane
         }
     }
 
+    resizeWithProposals(beforePropose, afterPropose, calls = 0)
+    {
+        if(calls > 2)
+        {
+            return false;
+        }
+
+        var fitAfter = this.dividerAfter == undefined ? true : this.dividerAfter.avaliableAfter() + afterPropose >= 0;
+        var fitBefore = this.dividerBefore == undefined ? true : this.dividerBefore.avaliableBefore() + beforePropose >= 0;
+
+        if(fitBefore && fitAfter)
+        {
+            if(this.dividerBefore != undefined)
+            {
+                this.dividerBefore.resizeBefore(beforePropose);
+            }
+            if(this.dividerAfter != undefined)
+            {
+                this.dividerAfter.resizeAfter(afterPropose);
+            }
+            return true;
+        }
+        else if(!fitBefore && fitAfter)
+        {
+            return this.resizeWithProposals(this.dividerBefore.avaliableBefore(), beforePropose + afterPropose - this.dividerBefore.avaliableBefore(), calls + 1);
+        }
+        else if(fitBefore && !fitAfter)
+        {
+            return this.resizeWithProposals(beforePropose + afterPropose - this.dividerAfter.avaliableAfter(), this.dividerAfter.avaliableAfter(), calls + 1);
+        }
+    }
+
     adjustWidth(width)
     {
         var widthPx = this._getInPx(width, $(this.el).parent().width());
@@ -62,16 +109,10 @@ class Pane
         }
 
         $(this.el).css("display", "none");
-
-        if(this.dividerBefore != undefined)
+        if(this.resizeWithProposals(widthDif, widthDif))
         {
-            this.dividerBefore.resizeAfter(widthDif);
+            this.setWidth(width);
         }
-        if(this.dividerAfter != undefined)
-        {
-            this.dividerAfter.resizeBefore(widthDif);
-        }
-        this.setWidth(width);
         $(this.el).css("display", "initial");
     }
 

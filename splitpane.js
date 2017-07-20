@@ -126,14 +126,15 @@ function layoutSquare(square)
     {
         var pane = singlePane.pane;
         
-        $(singlePane).css("float", "left");
+        $(singlePane).css("display", "flex");
+        $(singlePane).css("flex", "none");
 
         var widthPercent = 100 / weightTotal * pane.weight; 
         var heightPercent = 100 / weightTotal * pane.weight; 
         
         if(singlePane.classList.contains("pane-vertical"))
         {
-            $(singlePane).css("clear", "left");
+            // $(singlePane).css("clear", "left");
             
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
@@ -148,6 +149,7 @@ function layoutSquare(square)
 
         if(singlePane.classList.contains("pane-horizontal"))
         {
+            $(singlePane).css("flex-direction", "column");
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
 
@@ -178,6 +180,7 @@ function layoutSquare(square)
         {
             singlePane.pane.setHeight();
         }
+        singlePane.pane.tryResize();
     });
 
 }
