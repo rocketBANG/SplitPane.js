@@ -79,11 +79,11 @@ class Pane
         {
             if(this.dividerBefore != undefined)
             {
-                this.dividerBefore.resizeBefore(beforePropose);
+                this.dividerBefore.moveBack(beforePropose);
             }
             if(this.dividerAfter != undefined)
             {
-                this.dividerAfter.resizeAfter(afterPropose);
+                this.dividerAfter.moveForward(afterPropose);
             }
             return true;
         }

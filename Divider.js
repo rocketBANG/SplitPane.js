@@ -111,20 +111,20 @@ class DividerVertical extends Divider
         this.resizeWithProposals(beforeElSize, this._maxWidth - beforeElSize);
     }
 
-    resize(width, target, affected)
+    resize(width, target)
     {
         var prevWidth = $(target).width();
         target.pane.setWidth(width + prevWidth);
     }
 
-    resizeBefore(width)
+    moveBack(width)
     {
-        this.resize(width, this.beforeEl, this.afterEl);
+        this.resize(width, this.beforeEl);
     }
 
-    resizeAfter(width)
+    moveForward(width)
     {
-        this.resize(width, this.afterEl, this.beforeEl);
+        this.resize(width, this.afterEl);
     }
 
     avaliableBefore()

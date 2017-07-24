@@ -1,0 +1,13 @@
+--- Changed layout to flex instead of floating ---
+
+# resizeBefore() and resizeAfter() seem a bad way to handle resizing of neighbour panes
+Plan: change the resizeBefore() and resizeAfter() functions in Divider.js so that it is cleaner and more
+obvious what they do.
+1: Rename to moveBack/moveForward, indicating where the divider will move. This helps information hiding
+and doesn't indicate the implementation just resizes the other panes.
+Solved.
+
+# Dividers and Panes both have dupliate code, 1 set of functions for width and 1 set for height
+Plan: combine the functions into 1 and just call a getSize() function instead of specifying width or height.
+The divider subclasses can implement the getSize() function and return the appropriate value
+
