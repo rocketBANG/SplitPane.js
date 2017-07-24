@@ -118,8 +118,14 @@ function layoutSquare(square)
         {
             weightTotal += 1;
         }
-
-        singlePane.pane = new Pane(paneMin, singlePane, paneWeight, paneMinPx);
+        if(singlePane.classList.contains("pane-vertical"))
+        {
+            singlePane.pane = new PaneVertical(paneMin, singlePane, paneWeight, paneMinPx);
+        }
+        else
+        {
+            singlePane.pane = new PaneHorizontal(paneMin, singlePane, paneWeight, paneMinPx);
+        }
     });
 
     group.forEach(function(singlePane, cIndex)
@@ -174,11 +180,11 @@ function layoutSquare(square)
     {
         if(singlePane.classList.contains("pane-horizontal"))
         {
-            singlePane.pane.setWidth();
+            singlePane.pane.resize();
         }
         if(singlePane.classList.contains("pane-vertical"))
         {
-            singlePane.pane.setHeight();
+            singlePane.pane.resize();
         }
         singlePane.pane.tryResize();
     });

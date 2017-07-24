@@ -59,6 +59,68 @@ class Divider
         this._moving = false;
         $(document).off("mouseup", this.stopMove.bind(this));
     }
+
+    resize(size, target)
+    {
+        target.pane.resize(size + this.getElSize(target));
+    }
+
+    moveBack(size)
+    {
+        this.resize(size, this.beforeEl);
+    }
+
+    moveForward(size)
+    {
+        this.resize(size, this.afterEl);
+    }
+
+    avaliableBefore()
+    {
+        return this.getElSize(this.beforeEl) - this.beforeEl.pane.getMinSize();
+    }
+
+    avaliableAfter()
+    {
+        return this.getElSize(this.afterEl) - this.afterEl.pane.getMinSize();
+    }
+    
+    dragDivider(e)
+    {
+        var beforeElSize = this.getMousePos(e) - this.getOffset(this.beforeEl);
+
+        this.resizeWithProposals(beforeElSize, this._maxSize - beforeElSize);
+    }
+
+    resizeWithProposals(beforePropose, afterPropose, calls = 0)
+    {
+        if(calls > 2)
+        {
+            return;
+        }
+        var fitBefore = beforePropose >= this.beforeEl.pane.getMinSize();
+        var fitAfter = afterPropose >= this.afterEl.pane.getMinSize();
+        if(fitBefore && fitAfter)
+        {
+            $(this.beforeEl).siblings().css("display", "none");
+            this.beforeEl.pane.resize(beforePropose);
+            this.afterEl.pane.resize(afterPropose);
+            $(this.beforeEl).siblings().css("display", "flex");
+        }
+        else if(!fitBefore && fitAfter)
+        {
+            this.resizeWithProposals(this.beforeEl.pane.getMinSize(), this._maxSize - this.beforeEl.pane.getMinSize(), calls + 1);
+        }
+        else if(fitBefore && !fitAfter)
+        {
+            this.resizeWithProposals(this._maxSize - this.afterEl.pane.getMinSize(), this.afterEl.pane.getMinSize(), calls + 1);
+        }
+    }
+
+    measureDimensions()
+    {
+        this._maxSize = this.getElSize(this.beforeEl) + this.getElSize(this.afterEl);
+    }
 }
 
 class DividerVertical extends Divider
@@ -71,70 +133,19 @@ class DividerVertical extends Divider
         $(this.dividerEl).outerWidth(this.dividerWidth);
     }
 
-    measureDimensions()
+    getElSize(el)
     {
-        this._maxWidth = $(this.beforeEl).width() + $(this.afterEl).width();
+        return $(el).width();
     }
 
-    resizeWithProposals(beforePropose, afterPropose, calls = 0)
+    getOffset(el)
     {
-        if(calls > 2)
-        {
-            return;
-        }
-        var fitBefore = beforePropose >= this.beforeEl.pane.getMinWidth();
-        var fitAfter = afterPropose >= this.afterEl.pane.getMinWidth();
-        if(fitBefore && fitAfter)
-        {
-            $(this.beforeEl).siblings().css("display", "none");
-            this.beforeEl.pane.setWidth(beforePropose);
-            this.afterEl.pane.setWidth(afterPropose);
-            $(this.beforeEl).siblings().css("display", "initial");
-        }
-        else if(!fitBefore && fitAfter)
-        {
-            this.resizeWithProposals(this.beforeEl.pane.getMinWidth(), this._maxWidth - this.beforeEl.pane.getMinWidth(), calls + 1);
-        }
-        else if(fitBefore && !fitAfter)
-        {
-            this.resizeWithProposals(this._maxWidth - this.afterEl.pane.getMinWidth(), this.afterEl.pane.getMinWidth(), calls + 1);
-        }
+        return $(el).offset().left;
     }
 
-    dragDivider(e)
+    getMousePos(e)
     {
-        var sizePrevBefore = this.beforeEl.style.width;
-        var sizePrevAfter = this.afterEl.style.width;
-
-        var beforeElSize = e.clientX - $(this.beforeEl).offset().left;
-
-        this.resizeWithProposals(beforeElSize, this._maxWidth - beforeElSize);
-    }
-
-    resize(width, target)
-    {
-        var prevWidth = $(target).width();
-        target.pane.setWidth(width + prevWidth);
-    }
-
-    moveBack(width)
-    {
-        this.resize(width, this.beforeEl);
-    }
-
-    moveForward(width)
-    {
-        this.resize(width, this.afterEl);
-    }
-
-    avaliableBefore()
-    {
-        return $(this.beforeEl).width() - this.beforeEl.pane.getMinWidth();
-    }
-
-    avaliableAfter()
-    {
-        return $(this.afterEl).width() - this.afterEl.pane.getMinWidth();
+        return e.clientX;
     }
 }
 
@@ -148,31 +159,18 @@ class DividerHorizontal extends Divider
         $(this.dividerEl).outerHeight(this.dividerWidth);
     }
 
-    measureDimensions()
+    getElSize(el)
     {
-        this._maxHeight = $(this.beforeEl).height() + $(this.afterEl).height();
+        return $(el).height();
     }
 
-    dragDivider(e)
+    getOffset(el)
     {
-        var sizePrevBefore = this.beforeEl.style.height;
-        var sizePrevAfter = this.afterEl.style.height;
+        return $(el).offset().top;
+    }
 
-        var beforeElSize = e.clientY - $(this.beforeEl).offset().top;
-
-        if(!this.beforeEl.pane.setHeight(beforeElSize))
-        {
-            return;
-        }
-        
-        $(this.afterEl).outerHeight("0px");
-        var afterElSize = this._maxHeight - $(this.beforeEl).outerHeight();
-   
-        if(!this.afterEl.pane.setHeight(afterElSize))
-        {
-            $(this.beforeEl).css("height", sizePrevBefore);
-            $(this.afterEl).css("height", sizePrevAfter);
-        }
-        
+    getMousePos(e)
+    {
+        return e.clientY;
     }
 }

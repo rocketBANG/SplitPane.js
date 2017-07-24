@@ -2,22 +2,18 @@
 $start: 10%;
 $end: 90%;
 
-.pane-divider::before
+.pane-divider
 {
-    display: inline-block;
-    position: static;
-    width: 100%;
-    height: 100%;
     background-color: #eee;
-    content: "";
-    // background-image:
-    // linear-gradient(
-    //   to right, 
-    //   #000,
-    //   #000 $start,
-    //   #fff $start,
-    //   #fff $end,
-    //   #000 $end
-    // );
-
 }
+    body
+    {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+    .split-pane
+    {
+        box-sizing: border-box;
+        /* background: green; */
+    }

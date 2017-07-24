@@ -7,7 +7,18 @@ obvious what they do.
 and doesn't indicate the implementation just resizes the other panes.
 Solved.
 
+--- Renamed funtions to make it clearer what they do ---
+
 # Dividers and Panes both have dupliate code, 1 set of functions for width and 1 set for height
 Plan: combine the functions into 1 and just call a getSize() function instead of specifying width or height.
 The divider subclasses can implement the getSize() function and return the appropriate value
+1: Added PaneHorizontal and PaneVertical subclasses of Pane
+2: Moved most functions to the Pane class and just left 4 to be delegated to the subclasses
+    getSize(), getParentSize(), setSize(), getSizeCSS() (Probably can cut down on a few)
+3: Renamed all references to width to size
+4: Moved all the universal functions, now using template method to get size to the Divider class, allowing subclasses
+    to implement layout(), getElSize(), getMousePos(), and getOffset()
+Solved.
+
+--- Changed Divider and Pane to use the templete method ---
 

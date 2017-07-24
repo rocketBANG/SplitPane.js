@@ -8,7 +8,6 @@ class Pane
         this.dividerBefore = undefined;
         this.dividerAfter = undefined;
         this.weight = weight;
-        this.actualWidth = undefined;
         this.resizeTO = undefined;
 
         $(window).resize(function() 
@@ -20,9 +19,9 @@ class Pane
 
     tryResize()
     {
-        if($(this.el).width() < this.minPx)
+        if(this.getSize() < this.minPx)
         {
-            this.adjustWidth(this.minPx);
+            this.adjustSize(this.minPx);
         }
     }
 
@@ -97,81 +96,99 @@ class Pane
         }
     }
 
-    adjustWidth(width)
+    adjustSize(size)
     {
-        var widthPx = this._getInPx(width, $(this.el).parent().width());
+        var sizePx = this._getInPx(size, this.getParentSize());
 
-        var widthDif = $(this.el).width() - widthPx;
+        var sizeDif = this.getSize() - sizePx;
 
         if(this.dividerBefore != undefined && this.dividerAfter != undefined)
         {
-            widthDif = widthDif / 2;
+            sizeDif = sizeDif / 2;
         }
 
         $(this.el).css("display", "none");
-        if(this.resizeWithProposals(widthDif, widthDif))
+        if(this.resizeWithProposals(sizeDif, sizeDif))
         {
-            this.setWidth(width);
+            this.resize(size);
         }
-        $(this.el).css("display", "initial");
+        $(this.el).css("display", "flex");
     }
 
-    getMinWidth()
+    getMinSize()
     {
-        var smallestPercent = this._getInPx(this.min + "%", $(this.el).parent().width());
+        var smallestPercent = this._getInPx(this.min + "%", this.getParentSize());
         var smallestPx = smallestPercent > this.minPx ? smallestPercent : this.minPx;
         return smallestPx;
     }
 
     /**
-     * Sets the width of the pane
-     * @param {number} width - The width
+     * Sets the size(width/height) of the pane
+     * @param {number} size - The size in pixels (number) or Percent (string with % at the end)
      * @return {bool}
      */
-    setWidth(width)
+    resize(size)
     {
         var dividerWidths = 0;
         dividerWidths += this.dividerBefore != undefined ? this.dividerBefore.dividerWidth/2 : 0;
         dividerWidths += this.dividerAfter != undefined ? this.dividerAfter.dividerWidth/2 : 0;
 
-        if(width == undefined)
+        if(size == undefined)
         {
-            $(this.el).width("calc(" + this.el.style.width + " - " + dividerWidths + "px)");
-            return $(this.el).width();
+            this.setSize("calc(" + this.getSizeCSS() + " - " + dividerWidths + "px)");
+            return;
         }
 
-        var trueWidth = this._getInPx(width, $(this.el).parent().width());
-        trueWidth += dividerWidths;
-        var widthPercent = this._getInPercent(trueWidth, $(this.el).parent().width());
+        var trueSize = this._getInPx(size, this.getParentSize());
+        trueSize += dividerWidths;
+        var sizePercent = this._getInPercent(trueSize, this.getParentSize());
 
-        $(this.el).outerWidth("calc(" + widthPercent + "% - " + dividerWidths + "px)");
+        this.setSize("calc(" + sizePercent + "% - " + dividerWidths + "px)");
+    }
+}
+
+class PaneHorizontal extends Pane
+{
+    getSize()
+    {
+        return $(this.el).width();
     }
 
-    setHeight(height)
+    getParentSize()
     {
-        var dividerWidths = 0;
-        dividerWidths += this.dividerBefore != undefined ? this.dividerBefore.dividerWidth/2 : 0;
-        dividerWidths += this.dividerAfter != undefined ? this.dividerAfter.dividerWidth/2 : 0;
+        return $(this.el).parent().width();
+    }
 
-        if(height == undefined)
-        {
-            $(this.el).height("calc(" + this.el.style.height + " - " + dividerWidths + "px)");
-            return true;
-        }
+    setSize(size)
+    {
+        $(this.el).width(size);
+    }
 
-        var trueHeight = this._getInPx(height, $(this.el).parent().height());
-        trueHeight += dividerWidths;
-        var heightPercent = this._getInPercent(trueHeight, $(this.el).parent().height());
+    getSizeCSS()
+    {
+        return this.el.style.width;
+    }
+}
 
-        if(heightPercent > this.min && trueHeight > this.minPx)
-        {
-            $(this.el).outerHeight("calc(" + heightPercent + "% - " + dividerWidths + "px)");
-            return true;            
-        }
-        else
-        {
-            return false;
-        }
+class PaneVertical extends Pane
+{
+    getSize()
+    {
+        return $(this.el).height();
+    }
 
+    getParentSize()
+    {
+        return $(this.el).parent().height();
+    }
+
+    setSize(size)
+    {
+        $(this.el).height(size);
+    }
+
+    getSizeCSS()
+    {
+        return this.el.style.height;
     }
 }
