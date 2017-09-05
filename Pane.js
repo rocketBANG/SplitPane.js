@@ -13,21 +13,29 @@ class Pane
         $(window).resize(function() 
         {
             clearTimeout(this.resizeTO);
-            this.resizeTO = setTimeout(this.tryResize(), 500); //Timeouts so that it happens after the window resizing has 'settled down'
+            this.resizeTO = setTimeout(this.layout(), 500); //Timeouts so that it happens after the window resizing has 'settled down'
         }.bind(this));
     }
 
-    tryResize()
+    /**
+     * Adjusts Pane size to be above the minimum pixels  
+     * Called when layout size changes  
+     * Tries to keep Pane size above it's minimum pixels  
+     * (layout resize won't change the minimum % size)        
+     */
+    layout()
     {
-        if(this.getSize() < this.minPx)
+        if(this._getSize() < this.minPx)
         {
             this.adjustSize(this.minPx);
         }
     }
 
-    //Works with plain numbers (assume pixels)
-    //With pixels (10px)
-    //With percent (40%)
+    /**
+     * Returns a measurement (measured in percent or pixels) in percent relative to parent
+     * @param {*} measurement The measurement to change (number for pixels, string with % at the end for percent)
+     * @param {number} parentMeasure The parent measurment used to calculate relative percentage
+     */
     _getInPercent(measurement, parentMeasure)
     {
         if(typeof measurement == "number")
@@ -47,6 +55,11 @@ class Pane
         }
     }
 
+    /**
+     * Returns the measurement (measured in percent or pixels) in pixels
+     * @param {*} measurement The measurement to change (string with % at the end for percent, number for pixels)
+     * @param {number} parentMeasure The parent measurment used to calculate actual size from percentage
+     */
     _getInPx(measurement, parentMeasure)
     {
         if(typeof measurement == "number")
@@ -64,9 +77,17 @@ class Pane
         }
     }
 
-    resizeWithProposals(beforePropose, afterPropose, calls = 0)
+    /**
+     * Tries to resize the adjacent panes with the given sizes  
+     * If the first proposal does not work, it makes a new proposal using all the avaliable space
+     * in one Pane, and then proposes to shrink the other Pane by the remaining space
+     * @param {number} beforePropose The proposed amount to shrink the Pane before (in pixels)
+     * @param {number} afterPropose The proposed amount to shrink the Pane after (in pixels)
+     * @param {number} calls How many attempts has been tried (stops after 2)
+     */
+    _resizeWithProposals(beforePropose, afterPropose, calls = 0)
     {
-        if(calls > 2)
+        if(calls > 1)
         {
             return false;
         }
@@ -88,19 +109,24 @@ class Pane
         }
         else if(!fitBefore && fitAfter)
         {
-            return this.resizeWithProposals(this.dividerBefore.avaliableBefore(), beforePropose + afterPropose - this.dividerBefore.avaliableBefore(), calls + 1);
+            return this._resizeWithProposals(this.dividerBefore.avaliableBefore(), beforePropose + afterPropose - this.dividerBefore.avaliableBefore(), calls + 1);
         }
         else if(fitBefore && !fitAfter)
         {
-            return this.resizeWithProposals(beforePropose + afterPropose - this.dividerAfter.avaliableAfter(), this.dividerAfter.avaliableAfter(), calls + 1);
+            return this._resizeWithProposals(beforePropose + afterPropose - this.dividerAfter.avaliableAfter(), this.dividerAfter.avaliableAfter(), calls + 1);
         }
     }
 
+    /**
+     * Attempts to adjust the size of the Pane to the given size by shrinking/growing the adjacent Panes  
+     * Does not resize if adjacent Panes would go below the minimum size
+     * @param {*} size Target size in pixels (number) or percent (string closed with %) 
+     */
     adjustSize(size)
     {
-        var sizePx = this._getInPx(size, this.getParentSize());
+        var sizePx = this._getInPx(size, this._getParentSize());
 
-        var sizeDif = this.getSize() - sizePx;
+        var sizeDif = this._getSize() - sizePx;
 
         if(this.dividerBefore != undefined && this.dividerAfter != undefined)
         {
@@ -108,24 +134,28 @@ class Pane
         }
 
         $(this.el).css("display", "none");
-        if(this.resizeWithProposals(sizeDif, sizeDif))
+        if(this._resizeWithProposals(sizeDif, sizeDif))
         {
             this.resize(size);
         }
         $(this.el).css("display", "flex");
     }
 
+    /**
+     * Gets the minimum size in pixels 
+     * (the larger of the minimum pixels or minimum percent at parent's current size)
+     * @return {number} minimum size in pixels
+     */
     getMinSize()
     {
-        var smallestPercent = this._getInPx(this.min + "%", this.getParentSize());
+        var smallestPercent = this._getInPx(this.min + "%", this._getParentSize());
         var smallestPx = smallestPercent > this.minPx ? smallestPercent : this.minPx;
         return smallestPx;
     }
 
     /**
-     * Sets the size(width/height) of the pane
+     * Sets the size of the pane
      * @param {number} size - The size in pixels (number) or Percent (string with % at the end)
-     * @return {bool}
      */
     resize(size)
     {
@@ -135,36 +165,49 @@ class Pane
 
         if(size == undefined)
         {
-            this.setSize("calc(" + this.getSizeCSS() + " - " + dividerWidths + "px)");
+            this._setSize("calc(" + this._getSizeCSS() + " - " + dividerWidths + "px)");
             return;
         }
 
-        var trueSize = this._getInPx(size, this.getParentSize());
+        var trueSize = this._getInPx(size, this._getParentSize());
         trueSize += dividerWidths;
-        var sizePercent = this._getInPercent(trueSize, this.getParentSize());
+        var sizePercent = this._getInPercent(trueSize, this._getParentSize());
 
-        this.setSize("calc(" + sizePercent + "% - " + dividerWidths + "px)");
+        this._setSize("calc(" + sizePercent + "% - " + dividerWidths + "px)");
     }
 }
 
 class PaneHorizontal extends Pane
 {
-    getSize()
+    /**
+     * @return {number} The width of the Pane in pixels
+     */
+    _getSize()
     {
         return $(this.el).width();
     }
 
-    getParentSize()
+    /**
+     * @return {number} The width of the Pane's parent element in pixels
+     */
+    _getParentSize()
     {
         return $(this.el).parent().width();
     }
 
-    setSize(size)
+    /**
+     * Sets the width of the element
+     * @param {*} size Width in pixels (number) or percent (string ended with %)
+     */
+    _setSize(size)
     {
         $(this.el).width(size);
     }
 
-    getSizeCSS()
+    /**
+     * @return {string} The actual css style of the element
+     */
+    _getSizeCSS()
     {
         return this.el.style.width;
     }
@@ -172,22 +215,35 @@ class PaneHorizontal extends Pane
 
 class PaneVertical extends Pane
 {
-    getSize()
+    /**
+    * @return {number} The height of the Pane in pixels
+    */
+    _getSize()
     {
         return $(this.el).height();
     }
 
-    getParentSize()
+    /**
+     * @return {number} The height of the Pane's parent element in pixels
+     */
+	_getParentSize()
     {
         return $(this.el).parent().height();
     }
 
-    setSize(size)
+    /**
+     * Sets the height of the element
+     * @param {*} size Width in pixels (number) or percent (string ended with %)
+     */
+	_setSize(size)
     {
         $(this.el).height(size);
     }
 
-    getSizeCSS()
+    /**
+     * @return {string} The actual css style of the element
+     */
+	_getSizeCSS()
     {
         return this.el.style.height;
     }

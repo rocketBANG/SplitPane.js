@@ -22,3 +22,5 @@ Solved.
 
 --- Changed Divider and Pane to use the templete method ---
 
+# Pane.js has no comments
+Plan: comment in Pane.js

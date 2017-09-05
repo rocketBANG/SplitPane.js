@@ -186,7 +186,7 @@ function layoutSquare(square)
         {
             singlePane.pane.resize();
         }
-        singlePane.pane.tryResize();
+        singlePane.pane.layout();
     });
 
 }

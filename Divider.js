@@ -7,8 +7,8 @@ class Divider
     /**
      * Creates a new divider
      * @param {number} dividerEl The DOM element of the divider
-     * @param {number} beforeEl The DOM element of the pane before
-     * @param {number} afterEl The DOM element of the pane after
+     * @param {*} beforeEl The DOM element of the pane before
+     * @param {*} afterEl The DOM element of the pane after
      * @param {number} width The that the divider should be
      */
     constructor(dividerEl, beforeEl, afterEl, width = 10)
