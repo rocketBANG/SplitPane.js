@@ -9,6 +9,8 @@ class Pane
         this.dividerAfter = undefined;
         this.weight = weight;
         this.resizeTO = undefined;
+        /** @type {Function} */
+        this.resizeCallback = undefined;
 
         $(window).resize(function() 
         {
@@ -29,6 +31,15 @@ class Pane
         {
             this.adjustSize(this.minPx);
         }
+    }
+
+    /**
+     * Sets a callback function to be called when the Pane resizes
+     * @param {Function} callback - Function to be called when the Pane resizes
+     */
+    setOnResize(callback)
+    {
+        this.resizeCallback = callback;
     }
 
     /**
@@ -166,6 +177,10 @@ class Pane
         if(size == undefined)
         {
             this._setSize("calc(" + this._getSizeCSS() + " - " + dividerWidths + "px)");
+            if(this.resizeCallback !== undefined)
+            {
+                this.resizeCallback(this._getSize());
+            }        
             return;
         }
 
@@ -174,6 +189,10 @@ class Pane
         var sizePercent = this._getInPercent(trueSize, this._getParentSize());
 
         this._setSize("calc(" + sizePercent + "% - " + dividerWidths + "px)");
+        if(this.resizeCallback !== undefined)
+        {
+            this.resizeCallback(this._getSize());
+        }
     }
 }
 

@@ -24,3 +24,13 @@ Solved.
 
 # Pane.js has no comments
 Plan: comment in Pane.js
+
+06/09/17
+Panes have no way of updating content when they are resized
+Need to add a listener to the Pane to fire on resize
+    Plan 
+        1: implement addOnResize/removeOnResize function in Pane which takes a callback function
+        2: fire all added callback functions when resized with the new size of the Pane
+    Execution
+        1: Changed to just a single setOnResize function in Pane to set/remove the callback
+        2: called the callback in the resize function
