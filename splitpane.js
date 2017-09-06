@@ -13,6 +13,11 @@ function SplitPane(rootEl, dividerWidth = 10)
     var vertical = 0;
     var rootPanes = [];
 
+    if($(rootEl).children(".pane-horizontal").length > 0) 
+    {
+        $(rootEl).css("display", "flex");
+    }
+
     $(rootEl).children(".split-pane").each(function(index, el)
     {
         if(el.classList.contains("pane-vertical"))
@@ -45,6 +50,12 @@ function addChildren(el)
 
     $(el).children(".split-pane").each(function(index, childEl)
     {
+        $(el).css("display", "flex");
+        $(el).css("flex", "none");
+        if(el.classList.contains("pane-horizontal"))
+        {
+            $(el).css("flex-direction", "column");
+        }    
         el.childPanes.push(childEl);
         addChildren(childEl);
     });
@@ -132,8 +143,8 @@ function layoutSquare(square)
     {
         var pane = singlePane.pane;
         
-        $(singlePane).css("display", "flex");
-        $(singlePane).css("flex", "none");
+        // $(singlePane).css("display", "flex");
+        // $(singlePane).css("flex", "none");
 
         var widthPercent = 100 / weightTotal * pane.weight; 
         var heightPercent = 100 / weightTotal * pane.weight; 
@@ -155,7 +166,7 @@ function layoutSquare(square)
 
         if(singlePane.classList.contains("pane-horizontal"))
         {
-            $(singlePane).css("flex-direction", "column");
+            // $(singlePane).css("flex-direction", "column");
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
 

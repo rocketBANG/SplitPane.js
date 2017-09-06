@@ -143,13 +143,13 @@ class Pane
         {
             sizeDif = sizeDif / 2;
         }
-
+        var prevDisplay = $(this.el).css("display");
         $(this.el).css("display", "none");
         if(this._resizeWithProposals(sizeDif, sizeDif))
         {
             this.resize(size);
         }
-        $(this.el).css("display", "flex");
+        $(this.el).css("display", prevDisplay);
     }
 
     /**

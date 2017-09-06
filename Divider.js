@@ -102,10 +102,11 @@ class Divider
         var fitAfter = afterPropose >= this.afterEl.pane.getMinSize();
         if(fitBefore && fitAfter)
         {
+            var beforeDisplay = $(this.beforeEl).siblings().css("display");
             $(this.beforeEl).siblings().css("display", "none");
             this.beforeEl.pane.resize(beforePropose);
             this.afterEl.pane.resize(afterPropose);
-            $(this.beforeEl).siblings().css("display", "flex");
+            $(this.beforeEl).siblings().css("display", beforeDisplay);
         }
         else if(!fitBefore && fitAfter)
         {
