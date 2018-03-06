@@ -26,8 +26,8 @@ class Divider {
         }
 
 
-        $(this.dividerEl).on("mousedown", this.mouseDown.bind(this));
-        $(document).on("mousemove", this.documentMouseMove.bind(this));
+        this.dividerEl.addEventListener("mousedown", this.mouseDown.bind(this));
+        document.addEventListener("mousemove", this.documentMouseMove.bind(this));
         this.layout();
     }
 
@@ -36,7 +36,7 @@ class Divider {
 
         this.measureDimensions();
 
-        $(document).on("mouseup", this.stopMove.bind(this));
+        document.addEventListener("mouseup", this.stopMove.bind(this));
 
         e.preventDefault();
     }
@@ -49,7 +49,7 @@ class Divider {
 
     stopMove() {
         this._moving = false;
-        $(document).off("mouseup", this.stopMove.bind(this));
+        document.removeEventListener("mouseup", this.stopMove.bind(this));
     }
 
     resize(size, target) {
@@ -86,14 +86,19 @@ class Divider {
         var fitAfter = afterPropose >= this.afterEl.pane.getMinSize();
         if (fitBefore && fitAfter) {
             var beforeDislay = [];
-            $(this.beforeEl).siblings().each(function (i, sibling) {
-                beforeDislay.push($(sibling).css("display"));
+            this.beforeEl.parentNode.childNodes.forEach((sibling, i) => {
+                if(sibling.nodeName === "DIV" && sibling !== this.beforeEl) {
+                    beforeDislay[i] = sibling.style.display;
+                    sibling.style.display = "none";
+                }
             });
-            $(this.beforeEl).siblings().css("display", "none");
+
             this.beforeEl.pane.resize(beforePropose);
             this.afterEl.pane.resize(afterPropose);
-            $(this.beforeEl).siblings().each(function (i, sibling) {
-                $(sibling).css("display", beforeDislay[i]);
+            this.beforeEl.parentNode.childNodes.forEach((sibling, i) => {
+                if(sibling.nodeName === "DIV" && sibling !== this.beforeEl) {
+                    sibling.style.display = beforeDislay[i];
+                }
             });
         }
         else if (!fitBefore && fitAfter) {
@@ -111,18 +116,18 @@ class Divider {
 
 class DividerVertical extends Divider {
     layout() {
-        $(this.dividerEl).css("cursor", "ew-resize");
-        $(this.dividerEl).css("flex", "none");
-        $(this.dividerEl).height("100%");
-        $(this.dividerEl).outerWidth(this.dividerWidth);
+        this.dividerEl.style.cursor = "ew-resize";
+        this.dividerEl.style.flex = "none";
+        this.dividerEl.style.height = "100%";
+        this.dividerEl.style.width = this.dividerWidth;
     }
 
     getElSize(el) {
-        return $(el).width();
+        return el.offsetWidth;
     }
 
     getOffset(el) {
-        return $(el).offset().left;
+        return el.getBoundingClientRect().left + document.body.scrollLeft;
     }
 
     getMousePos(e) {
@@ -132,18 +137,18 @@ class DividerVertical extends Divider {
 
 class DividerHorizontal extends Divider {
     layout() {
-        $(this.dividerEl).css("cursor", "ns-resize");
-        $(this.dividerEl).css("flex", "none");
-        $(this.dividerEl).width("100%");
-        $(this.dividerEl).outerHeight(this.dividerWidth);
+        this.dividerEl.style.cursor = "ns-resize";
+        this.dividerEl.style.flex = "none";
+        this.dividerEl.style.width = "100%";
+        this.dividerEl.style.height = this.dividerWidth;
     }
 
     getElSize(el) {
-        return $(el).height();
+        return el.offsetHeight;
     }
 
     getOffset(el) {
-        return $(el).offset().top;
+        return el.getBoundingClientRect().top + document.body.scrollTop;
     }
 
     getMousePos(e) {

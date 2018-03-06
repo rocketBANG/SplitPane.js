@@ -10,9 +10,9 @@ class Pane {
         /** @type {Function} */
         this.resizeCallback = undefined;
 
-        $(window).resize(function () {
+        window.addEventListener("resize", function () {
             clearTimeout(this.resizeTO);
-            this.resizeTO = setTimeout(this.layout(), 500); //Timeouts so that it happens after the window resizing has 'settled down'
+            this.resizeTO = setTimeout(this.layout(), 100); //Timeouts so that it happens after the window resizing has 'settled down'
         }.bind(this));
     }
 
@@ -120,12 +120,12 @@ class Pane {
         if (this.dividerBefore != undefined && this.dividerAfter != undefined) {
             sizeDif = sizeDif / 2;
         }
-        var prevDisplay = $(this.el).css("display");
-        $(this.el).css("display", "none");
+        var prevDisplay = this.el.style.display;
+        this.el.style.display = "none";
         if (this._resizeWithProposals(sizeDif, sizeDif)) {
             this.resize(size);
         }
-        $(this.el).css("display", prevDisplay);
+        this.el.style.display = prevDisplay;
     }
 
     /**
@@ -172,14 +172,14 @@ class PaneHorizontal extends Pane {
      * @return {number} The width of the Pane in pixels
      */
     _getSize() {
-        return $(this.el).width();
+        return this.el.offsetWidth;
     }
 
     /**
      * @return {number} The width of the Pane's parent element in pixels
      */
     _getParentSize() {
-        return $(this.el).parent().width();
+        return this.el.parentNode.offsetWidth;
     }
 
     /**
@@ -187,7 +187,7 @@ class PaneHorizontal extends Pane {
      * @param {*} size Width in pixels (number) or percent (string ended with %)
      */
     _setSize(size) {
-        $(this.el).width(size);
+        this.el.style.width = size;
     }
 
     /**
@@ -203,14 +203,14 @@ class PaneVertical extends Pane {
     * @return {number} The height of the Pane in pixels
     */
     _getSize() {
-        return $(this.el).height();
+        return this.el.offsetHeight;
     }
 
     /**
      * @return {number} The height of the Pane's parent element in pixels
      */
     _getParentSize() {
-        return $(this.el).parent().height();
+        return this.el.parentNode.offsetHeight;
     }
 
     /**
@@ -218,7 +218,7 @@ class PaneVertical extends Pane {
      * @param {*} size Width in pixels (number) or percent (string ended with %)
      */
     _setSize(size) {
-        $(this.el).height(size);
+        this.el.style.height = size;
     }
 
     /**

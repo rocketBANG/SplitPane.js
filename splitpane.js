@@ -4,18 +4,20 @@ function SplitPane(rootEl, dividerWidth = 10) {
     _dividerWidth = dividerWidth;
 
     if (rootEl == undefined) {
-        rootEl = $("body");
+        rootEl = document.body;
     }
 
     var horizontal = 0;
     var vertical = 0;
     var rootPanes = [];
 
-    if ($(rootEl).children(".pane-horizontal").length > 0) {
-        $(rootEl).css("display", "flex");
+    let rootChildren = Array.from(rootEl.children);
+
+    if (rootChildren.filter(c => c.classList.contains("pane-horizontal")).length > 0) {
+        rootEl.style.display = "flex";
     }
 
-    $(rootEl).children(".split-pane").each(function (index, el) {
+    rootChildren.filter(c => c.classList.contains("split-pane")).forEach(function (el) {
         if (el.classList.contains("pane-vertical")) {
             el.type = "vertical";
         }
@@ -39,11 +41,13 @@ function addChildren(el) {
         el.childPanes = [];
     }
 
-    $(el).children(".split-pane").each(function (index, childEl) {
-        $(el).css("display", "flex");
-        $(el).css("flex", "none");
+    let rootChildren = Array.from(el.children);
+
+    rootChildren.filter(c => c.classList.contains("split-pane")).forEach(function (childEl) {
+        el.style.display = "flex";
+        el.style.flex = "none";
         if (el.classList.contains("pane-horizontal")) {
-            $(el).css("flex-direction", "column");
+            el.style.flexDirection = "column";
         }
         el.childPanes.push(childEl);
         addChildren(childEl);
@@ -55,20 +59,20 @@ function layoutChildren(children) {
         return;
     }
 
+    children = Array.from(children);
+
     layoutSquare(children);
 
-    $(children).each(function (index, child) {
+    children.forEach(function (child) {
         layoutChildren(child.children);
     });
 }
 
 function getClassValue(element, findClass, callback) {
-    $(element).filter("div[class^='" + findClass + "'],div[class*=' " + findClass + "']").each(function (index, el) {
-        el.classList.forEach(function (classname) {
-            if (classname.substr(0, findClass.length) == findClass) {
-                callback(classname.substr(findClass.length));
-            }
-        });
+    element.classList.forEach(function (classname) {
+        if (classname.substr(0, findClass.length) == findClass) {
+            callback(classname.substr(findClass.length));
+        }
     });
 }
 
@@ -76,7 +80,7 @@ function layoutSquare(square) {
     var verticalGroups = [];
     var group = [];
 
-    $(square).each(function (index, el) {
+    square.forEach(function (el) {
         if (el.classList.contains("pane-vertical")) {
             group.push(el);
         }
@@ -94,9 +98,9 @@ function layoutSquare(square) {
         var paneMin;
         var paneMinPx;
 
-        getClassValue(singlePane, "pane-weight-", function (value) { paneWeight = parseInt(value); });
-        getClassValue(singlePane, "pane-min-", function (value) { paneMin = parseInt(value); });
-        getClassValue(singlePane, "pane-minpx-", function (value) { paneMinPx = parseInt(value); });
+        getClassValue(singlePane, "pane-weight-", (value) => { paneWeight = parseInt(value); });
+        getClassValue(singlePane, "pane-min-", (value) => { paneMin = parseInt(value); });
+        getClassValue(singlePane, "pane-minpx-", (value) => { paneMinPx = parseInt(value); });
 
         if (paneWeight != undefined) {
             weightTotal += paneWeight;
@@ -115,15 +119,10 @@ function layoutSquare(square) {
     group.forEach(function (singlePane, cIndex) {
         var pane = singlePane.pane;
 
-        // $(singlePane).css("display", "flex");
-        // $(singlePane).css("flex", "none");
-
         var widthPercent = 100 / weightTotal * pane.weight;
         var heightPercent = 100 / weightTotal * pane.weight;
 
         if (singlePane.classList.contains("pane-vertical")) {
-            // $(singlePane).css("clear", "left");
-
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
 
@@ -135,7 +134,6 @@ function layoutSquare(square) {
         }
 
         if (singlePane.classList.contains("pane-horizontal")) {
-            // $(singlePane).css("flex-direction", "column");
             var divider = document.createElement("div");
             divider.classList.add("pane-divider");
 
@@ -147,11 +145,11 @@ function layoutSquare(square) {
         }
 
         if (cIndex > 0) {
-            $(singlePane).before(divider);
+            singlePane.parentNode.insertBefore(divider, singlePane);
         }
 
-        $(singlePane).height(heightPercent + "%");
-        $(singlePane).width(widthPercent + "%");
+        singlePane.style.height = heightPercent + "%";
+        singlePane.style.width = widthPercent + "%";
     });
 
     group.forEach(function (singlePane, cIndex) {
