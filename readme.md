@@ -9,7 +9,10 @@ Can be fully controlled through your HTML class definitions
 
 
 ## Getting started
-Add the split-pane class to your div  
+
+Import splitpane.min.js e.g. `<script src="min/splitpane.min.js" type="text/javascript"></script>`
+
+Then add the split-pane class to your div  
 Then add the pane-[horizontal/vertical] to specify direction
 
 Call `SplitPane()` in your document ready function  
