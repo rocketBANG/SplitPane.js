@@ -28,6 +28,9 @@ Can add the options
 * **pane-minpx-[number]** where the number is the minimum pixels width/height that the column can be  
 * **pane-weight-[number]** where the number is the weighted initial width/height of the column
 
+Warning when using pane-minpx - the panes must all be able to fit into the window with their minimum pixels  
+If this is not the case, strange behaviour may occur
+
 ![Demo2](img/Demo2.gif)
 
 ## Demos

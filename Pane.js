@@ -11,8 +11,7 @@ class Pane {
         this.resizeCallback = undefined;
 
         window.addEventListener("resize", function () {
-            clearTimeout(this.resizeTO);
-            this.resizeTO = setTimeout(this.layout(), 100); //Timeouts so that it happens after the window resizing has 'settled down'
+            this.layout()
         }.bind(this));
     }
 
@@ -114,18 +113,15 @@ class Pane {
      */
     adjustSize(size) {
         var sizePx = this._getInPx(size, this._getParentSize());
-
         var sizeDif = this._getSize() - sizePx;
 
         if (this.dividerBefore != undefined && this.dividerAfter != undefined) {
             sizeDif = sizeDif / 2;
         }
-        var prevDisplay = this.el.style.display;
-        this.el.style.display = "none";
-        if (this._resizeWithProposals(sizeDif, sizeDif)) {
+        if (this._resizeWithProposals(sizeDif, sizeDif)) {            
             this.resize(size);
         }
-        this.el.style.display = prevDisplay;
+
     }
 
     /**
