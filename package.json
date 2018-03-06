@@ -1,0 +1,29 @@
+{
+  "name": "split-pane-js",
+  "version": "1.0.0",
+  "description": "Easily create adjustable views for your web app  \r Can be fully controlled through your HTML class definitions",
+  "main": "demo-script.js",
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^3.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketBANG/SplitPane.js.git"
+  },
+  "author": "Reuben Rakete",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rocketBANG/SplitPane.js/issues"
+  },
+  "homepage": "https://github.com/rocketBANG/SplitPane.js#readme"
+}

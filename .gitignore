@@ -1,3 +1,4 @@
 .sync
 *.yml
-.vscode/launch.json
+node_modules
+.vscode
