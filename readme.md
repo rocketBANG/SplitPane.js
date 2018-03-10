@@ -37,7 +37,7 @@ If this is not the case, strange behaviour may occur
 ![Demo2](img/Demo2.gif)
 
 ## Demos
-[Demo here](demo.html)
+[Demo here](https://rocketbang.github.io/SplitPane.js/demo.html)
 
 ## Advanced options
 Each divider has the class *pane-divider* so can be customised with css  
